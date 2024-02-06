@@ -1,6 +1,8 @@
 package ca.mcmaster.se2aa4.island.team119;
 
 import java.io.StringReader;
+
+import jdk.javadoc.doclet.Reporter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -12,23 +14,22 @@ public class Explorer implements IExplorerRaid {
 
     private final Logger logger = LogManager.getLogger();
 
+    private Integer decisionCounter = 0;
+
     @Override
     public void initialize(String s) {
         logger.info("** Initializing the Exploration Command Center");
         JSONObject info = new JSONObject(new JSONTokener(new StringReader(s)));
         logger.info("** Initialization info:\n {}",info.toString(2));
-        String direction = info.getString("heading");
-        Integer batteryLevel = info.getInt("budget");
-        logger.info("The drone is facing {}", direction);
-        logger.info("Battery level is {}", batteryLevel);
+        MapParser mapParser = new MapParser();
+        Drone drone = new Drone(info);
+        logger.info("The drone is facing {}", drone.direction);
+        logger.info("Battery level is {}", drone.batteryLevel);
     }
 
     @Override
     public String takeDecision() {
-        JSONObject decision = new JSONObject();
-        decision.put("action", "stop"); // we stop the exploration immediately
-        logger.info("** Decision: {}",decision.toString());
-        return decision.toString();
+
     }
 
     @Override
@@ -45,7 +46,8 @@ public class Explorer implements IExplorerRaid {
 
     @Override
     public String deliverFinalReport() {
-        return "no creek found";
+        FinalReport finalReport = new FinalReport();
+        return finalReport.getReport();
     }
 
 }

@@ -4,7 +4,7 @@
 - Authors:
   - [Haniya, Kashif](kashih2@mcmaster.ca) 
   - [Anam, Khan](khana489@mcmaster.ca)
-  - [Firstname_3, Lastname_3](macid@mcmaster.ca)
+  - [Muhammad, Huzaifah](huzaifam@mcmaster.ca)
 
 ## Product Description
 

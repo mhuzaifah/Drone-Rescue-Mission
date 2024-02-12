@@ -2,7 +2,6 @@ package ca.mcmaster.se2aa4.island.team119;
 
 import java.io.StringReader;
 
-import jdk.javadoc.doclet.Reporter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -12,9 +11,22 @@ import org.json.JSONTokener;
 
 public class Explorer implements IExplorerRaid {
 
-    private Integer decisionCounter = 0;
-
     private final Logger logger = LogManager.getLogger();
+
+    Drone drone;
+    ResultProcessor resultProcessor = new ResultProcessor();
+
+    //Variables used to execute exploring logic. Will need to be refactored and encapsulated somewhere else eventually
+    /*
+        echoResult - Keeps track of whether echo returned ground or OUT_OF_RANGE
+        decisionExecuted - Keeps track of the previous decision made by the drone
+        intialEchoExecuted - For the first initial echo in order to store the maximum distance that can be travelled
+     */
+    String echoResult = "";
+    String decisionExecuted = "";
+    int maxDistance = -1;
+    boolean intialEchoExecuted = false;
+
 
     @Override
     public void initialize(String s) {
@@ -22,29 +34,33 @@ public class Explorer implements IExplorerRaid {
         JSONObject info = new JSONObject(new JSONTokener(new StringReader(s)));
         logger.info("** Initialization info:\n {}",info.toString(2));
         MapParser mapParser = new MapParser();
-        Drone drone = new Drone(info);
+        drone = new Drone(info);
         logger.info("The drone is facing {}", drone.direction);
         logger.info("Battery level is {}", drone.batteryLevel);
     }
 
     @Override
     public String takeDecision() {
+
         JSONObject decision = new JSONObject();
 
-        if (decisionCounter < 102) {
-            if (decisionCounter % 2 == 0) {
-                decision.put("action", "scan");
-            } else {
-                decision.put("action", "fly");
-            }
-        }
-        else {
+        /*
+            Logic of whether to explore the maze or stop
+            Stops if island is found or max distance has been travelled
+         */
+        if((!echoResult.isEmpty() && echoResult.equals("GROUND")) || (drone.flyCount == maxDistance)) {
+            logger.info("DRONE FLY COUNT: {}", drone.flyCount);
+            logger.info("MAX DIST {}", maxDistance);
+            logger.info("ECHO RESULT {}", echoResult);
+            logger.info("Island found.");
             decision.put("action", "stop");
         }
+        else {
+            drone.explore(decision);
+        }
 
-        decisionCounter++;
-
-        logger.info("** Decision: {}",decision.toString());
+        decisionExecuted = decision.getString("action");
+        logger.info("** Decision: {}", decision.toString());
 
         return decision.toString();
     }
@@ -52,12 +68,34 @@ public class Explorer implements IExplorerRaid {
     @Override
     public void acknowledgeResults(String s) {
         JSONObject response = new JSONObject(new JSONTokener(new StringReader(s)));
+
         logger.info("** Response received:\n"+response.toString(2));
-        Integer cost = response.getInt("cost");
+
+        int cost = response.getInt("cost");
         logger.info("The cost of the action was {}", cost);
+
+        drone.batteryLevel -= cost;
+        logger.info("The battery of the drone is {}", drone.batteryLevel);
+
         String status = response.getString("status");
         logger.info("The status of the drone is {}", status);
+
         JSONObject extraInfo = response.getJSONObject("extras");
+
+        //Checking if we echoed, and if we did then getting the max distance (only for first forward echo) and storing echo results
+        if(decisionExecuted.equals("echo")) {
+            echoResult = extraInfo.getString("found");
+
+            if(!intialEchoExecuted) {
+                logger.info("GETTING MAX RANGE {}", extraInfo.getInt("range"));
+                maxDistance = extraInfo.getInt("range");
+                intialEchoExecuted = true;
+            }
+
+        } else {
+            echoResult = "";
+        }
+
         logger.info("Additional information received: {}", extraInfo);
     }
 
@@ -68,3 +106,4 @@ public class Explorer implements IExplorerRaid {
     }
 
 }
+

@@ -12,9 +12,9 @@ import org.json.JSONTokener;
 
 public class Explorer implements IExplorerRaid {
 
-    private final Logger logger = LogManager.getLogger();
-
     private Integer decisionCounter = 0;
+
+    private final Logger logger = LogManager.getLogger();
 
     @Override
     public void initialize(String s) {
@@ -29,7 +29,24 @@ public class Explorer implements IExplorerRaid {
 
     @Override
     public String takeDecision() {
+        JSONObject decision = new JSONObject();
 
+        if (decisionCounter < 102) {
+            if (decisionCounter % 2 == 0) {
+                decision.put("action", "scan");
+            } else {
+                decision.put("action", "fly");
+            }
+        }
+        else {
+            decision.put("action", "stop");
+        }
+
+        decisionCounter++;
+
+        logger.info("** Decision: {}",decision.toString());
+
+        return decision.toString();
     }
 
     @Override

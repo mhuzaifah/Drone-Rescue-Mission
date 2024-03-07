@@ -13,6 +13,7 @@ public class Explorer implements IExplorerRaid {
 
     private final Logger logger = LogManager.getLogger();
 
+    int counter = 0;
     Drone drone;
     ResultProcessor resultProcessor = new ResultProcessor();
 
@@ -22,10 +23,11 @@ public class Explorer implements IExplorerRaid {
         decisionExecuted - Keeps track of the previous decision made by the drone
         intialEchoExecuted - For the first initial echo in order to store the maximum distance that can be travelled
      */
-    String echoResult = "";
+    public String echoResult = "";
     String decisionExecuted = "";
     int maxDistance = -1;
     boolean intialEchoExecuted = false;
+    int decisioncount = 0;
 
 
     @Override
@@ -48,15 +50,35 @@ public class Explorer implements IExplorerRaid {
             Logic of whether to explore the maze or stop
             Stops if island is found or max distance has been travelled
          */
-        if((!echoResult.isEmpty() && echoResult.equals("GROUND")) || (drone.flyCount == maxDistance)) {
+        //if(((!echoResult.isEmpty() && echoResult.equals("GROUND")) || (drone.flyCount == maxDistance))){
+        if((counter == 800)){
+            //if (drone.flyCount == 200) {
             logger.info("DRONE FLY COUNT: {}", drone.flyCount);
             logger.info("MAX DIST {}", maxDistance);
             logger.info("ECHO RESULT {}", echoResult);
-            logger.info("Island found.");
+            //logger.info("Island found.");
             decision.put("action", "stop");
+
+            /*decisioncount = 1;
+            decision.put("action", "heading");
+            decision.put("parameters", new JSONObject().put("direction", drone.direction.lookRight().toString()));
+        }else if(decisioncount == 1) {
+            decision.put("action", "scan");
+            decisioncount = 2;
+        }else if(decisioncount == 2) {
+            decision.put("action", "fly");
+            logger.info("flown after turning right");
+            decisioncount = 3;
+        }else if(decisioncount == 3){
+            decision.put("action", "scan");
+            decisioncount = 4;
+        }else if (decisioncount == 4){
+            decision.put("action", "stop");
+            logger.info("stopped after turning right");*/
         }
         else {
-            drone.explore(decision);
+            counter++;
+            drone.explore(decision, echoResult);
         }
 
         decisionExecuted = decision.getString("action");
@@ -106,4 +128,3 @@ public class Explorer implements IExplorerRaid {
     }
 
 }
-

@@ -7,19 +7,21 @@ public class Drone {
     Direction direction;
     Integer batteryLevel;
     DroneController droneController = new DroneController();
-    DroneSensor droneSensor = new DroneSensor();
     RescueLogic rescueLogic = new RescueLogic(this);
     int flyCount; //Used to keep track of how far the drone has flown. Will have to refactor into using coordinates instead that are connected with the Map
-
+    private State currentState;
     public enum State {
         FLY,
         ECHOFWD,
         ECHOR,
         ECHOL,
         SCAN,
+        HEADINGR,
+        HEADINGL,
+        BUFFERR,
+        BUFFERL,
+        BUFFERF
     }
-
-    private State currentState;
 
     Drone(JSONObject info) {
         this.direction = determineInitDirection(info.getString("heading"));
@@ -46,8 +48,8 @@ public class Drone {
         this.currentState = newState;
     }
 
-    public void explore(JSONObject decision) {
-        rescueLogic.makeMove(decision);
+    public void explore(JSONObject decision, String echoResult) {
+        rescueLogic.makeMove(decision, echoResult);
     }
 }
 

@@ -8,6 +8,7 @@ public class RescueLogic {
 
     private final Logger logger = LogManager.getLogger();
     ResultProcessor resultProcessor = new ResultProcessor();
+    Map map = new Map();
 
     private Drone drone;
 

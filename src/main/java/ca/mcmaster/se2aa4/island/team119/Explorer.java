@@ -6,6 +6,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import eu.ace_design.island.bot.IExplorerRaid;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
@@ -13,7 +14,7 @@ public class Explorer implements IExplorerRaid {
 
     private final Logger logger = LogManager.getLogger();
 
-    int counter = 0;
+    //int counter = 0;
     Drone drone;
     ResultProcessor resultProcessor = new ResultProcessor();
 
@@ -23,11 +24,12 @@ public class Explorer implements IExplorerRaid {
         decisionExecuted - Keeps track of the previous decision made by the drone
         intialEchoExecuted - For the first initial echo in order to store the maximum distance that can be travelled
      */
-    public String echoResult = "";
+    String echoResult = "";
+    //boolean isOceanPresent = false;
     String decisionExecuted = "";
     int maxDistance = -1;
     boolean intialEchoExecuted = false;
-    int decisioncount = 0;
+    //int decisioncount = 0;
 
 
     @Override
@@ -51,33 +53,16 @@ public class Explorer implements IExplorerRaid {
             Stops if island is found or max distance has been travelled
          */
         //if(((!echoResult.isEmpty() && echoResult.equals("GROUND")) || (drone.flyCount == maxDistance))){
-        if((counter == 800)){
+        if((drone.flyCount == 20000)){
             //if (drone.flyCount == 200) {
             logger.info("DRONE FLY COUNT: {}", drone.flyCount);
             logger.info("MAX DIST {}", maxDistance);
             logger.info("ECHO RESULT {}", echoResult);
             //logger.info("Island found.");
             decision.put("action", "stop");
-
-            /*decisioncount = 1;
-            decision.put("action", "heading");
-            decision.put("parameters", new JSONObject().put("direction", drone.direction.lookRight().toString()));
-        }else if(decisioncount == 1) {
-            decision.put("action", "scan");
-            decisioncount = 2;
-        }else if(decisioncount == 2) {
-            decision.put("action", "fly");
-            logger.info("flown after turning right");
-            decisioncount = 3;
-        }else if(decisioncount == 3){
-            decision.put("action", "scan");
-            decisioncount = 4;
-        }else if (decisioncount == 4){
-            decision.put("action", "stop");
-            logger.info("stopped after turning right");*/
         }
         else {
-            counter++;
+            //counter++;
             drone.explore(decision, echoResult);
         }
 
@@ -104,17 +89,22 @@ public class Explorer implements IExplorerRaid {
 
         JSONObject extraInfo = response.getJSONObject("extras");
 
+        // Call the processResponse method with the response string
+        //drone.photoScanner.scannedBiomes(s);
+        //JSONArray biomesArray = extraInfo.getJSONArray("biomes");
+        //isOceanPresent = biomesArray.toList().contains("OCEAN");
+
         //Checking if we echoed, and if we did then getting the max distance (only for first forward echo) and storing echo results
         if(decisionExecuted.equals("echo")) {
             echoResult = extraInfo.getString("found");
 
-            if(!intialEchoExecuted) {
+            if (!intialEchoExecuted) {
                 logger.info("GETTING MAX RANGE {}", extraInfo.getInt("range"));
                 maxDistance = extraInfo.getInt("range");
                 intialEchoExecuted = true;
             }
-
-        } else {
+        }
+        else {
             echoResult = "";
         }
 

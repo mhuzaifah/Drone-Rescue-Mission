@@ -17,14 +17,14 @@ public class RadarSensor {
         //this.drone = drone;
     }
 
-    private enum ScanResult{
+    /*private enum ScanResult{
         GROUND,
         OUT_OF_RANGE
-    }
+    }*/
     //JSONObject response = new JSONObject(new JSONTokener(new StringReader(s)));
     //JSONObject extraInfo = response.getJSONObject("extras");
     //String echoResult;
-    public boolean scanGround(JSONObject decision, Direction direction, String echoResult){
+    public boolean echoGround(JSONObject decision, Direction direction, String echoResult){
         decision.put("action", "echo");
         decision.put("parameters", new JSONObject().put("direction", direction.toString()));
         //response = new JSONObject(new JSONTokener(new StringReader(s)));

@@ -22,44 +22,35 @@ public class RescueLogic {
     RadarSensor radarSensor = new RadarSensor(drone);
 
     boolean echoF, echoR, echoL = false;
+    boolean firstTurnR, firstTurnL = false;
+    int counter = 0;
+
+    boolean alternating = false;
+
 
     //String buffer = "";
 
     public void makeMove(JSONObject decision, String echoResult) {
         //Drone.State prevState = drone.getCurrentState();
         switch(drone.getCurrentState()) {
-            /*case BUFFER -> {
-                if (Objects.equals(buffer, "forward")) {
-                    echoR = radarSensor.scanGround(decision, drone.direction.lookRight(), echoResult);
-                } else if (Objects.equals(buffer, "right")) {
-                    echoL = radarSensor.scanGround(decision, drone.direction.lookLeft(), echoResult);
-                } else if (Objects.equals(buffer, "left")) {
-                    echoF = radarSensor.scanGround(decision, drone.direction, echoResult);
-                }
-
-                /*if (prevState == ECHOFWD) {
-                    echoR = radarSensor.scanGround(decision, drone.direction.lookRight(), echoResult);
-                } else if (prevState == ECHOR) {
-                    echoL = radarSensor.scanGround(decision, drone.direction.lookLeft(), echoResult);
-                } else if (prevState == SCAN) {
-                    echoF = radarSensor.scanGround(decision, drone.direction, echoResult);
-                }
-            }*/
-            case BUFFERR, ECHOR -> {
-                echoR = radarSensor.scanGround(decision, drone.direction.lookRight(), echoResult);
+            case BUFFERR -> {
+                echoR = radarSensor.echoGround(decision, drone.direction.lookRight(), echoResult);
             }
-            case BUFFERL, ECHOL -> {
-                echoL = radarSensor.scanGround(decision, drone.direction.lookLeft(), echoResult);
+            case ECHOR -> {
+                echoR = radarSensor.echoGround(decision, drone.direction.lookRight(), echoResult);
             }
-            case BUFFERF, ECHOFWD -> {
-                echoF = radarSensor.scanGround(decision, drone.direction, echoResult);
+            case BUFFERL -> {
+                echoL = radarSensor.echoGround(decision, drone.direction.lookLeft(), echoResult);
             }
-            /*case ECHOFWD -> {
-                //decision.put("action", "echo");
-                //decision.put("parameters", new JSONObject().put("direction", drone.direction.toString()));
-                echoF = radarSensor.scanGround(decision, drone.direction, echoResult);
-                //buffer = "forward";
-            }*/
+            case ECHOL -> {
+                echoL = radarSensor.echoGround(decision, drone.direction.lookLeft(), echoResult);
+            }
+            case BUFFERF -> {
+                echoF = radarSensor.echoGround(decision, drone.direction, echoResult);
+            }
+            case ECHOFWD -> {
+                echoF = radarSensor.echoGround(decision, drone.direction, echoResult);
+            }
             case HEADINGR -> {
                 decision.put("action", "heading");
                 decision.put("parameters", new JSONObject().put("direction", drone.direction.lookRight().toString()));
@@ -76,82 +67,77 @@ public class RescueLogic {
                 decision.put("action", "fly");
                 drone.flyCount++;
             }
-            /*case ECHOR -> {
-                //decision.put("action", "echo");
-                //decision.put("parameters", new JSONObject().put("direction", drone.direction.lookRight().toString()));
-                echoR = radarSensor.scanGround(decision, drone.direction.lookRight(), echoResult);
-                //buffer = "right";
-            }*/
-            /*case ECHOL -> {
-                //decision.put("action", "echo");
-                //decision.put("parameters", new JSONObject().put("direction", drone.direction.lookLeft().toString()));
-                echoL = radarSensor.scanGround(decision, drone.direction.lookLeft(), echoResult);
-            }*/
             case SCAN -> {
                 //buffer = "scan";
                 decision.put("action", "scan");
             }
             default -> { }
         }
-
-        //transition(drone);
         transition();
-
     }
 
-    //private void transition(Drone drone) {
     private void transition() {
-        Drone.State prevState = drone.getCurrentState();
+        //Drone.State prevState = drone.getCurrentState();
         switch(drone.getCurrentState()) {
-            case FLY, HEADINGR, HEADINGL -> { drone.setCurrentState(Drone.State.SCAN); }
-            case SCAN -> {//drone.setCurrentState(Drone.State.ECHOFWD);
-                //buffer = "scan";
+            case ECHOFWD -> {
                 drone.setCurrentState(Drone.State.BUFFERF);
             }
-            case ECHOR -> {
-                //buffer = "right";
-                if (echoR) {
-                    drone.setCurrentState(Drone.State.HEADINGR);
-                } else {
-                    //drone.setCurrentState(Drone.State.ECHOL);
-                    drone.setCurrentState(Drone.State.BUFFERL);
-                }
-            }
-            /*case BUFFER -> {
-                if (Objects.equals(buffer, "forward")) {
-                //if (prevState == ECHOFWD) {
-                    drone.setCurrentState(Drone.State.ECHOR);
-                } else if (Objects.equals(buffer, "right")) {
-                //else if (prevState == ECHOR) {
-                    drone.setCurrentState(Drone.State.ECHOL);
-                } else if (Objects.equals(buffer, "scan")) {
-                //else if (prevState == SCAN) {
-                    drone.setCurrentState(ECHOFWD);
-                }
-            }*/
-            case BUFFERR -> {
-                drone.setCurrentState(Drone.State.ECHOR);
-            }
-            case BUFFERL -> {
-                drone.setCurrentState(Drone.State.ECHOL);
-            }
             case BUFFERF -> {
-                drone.setCurrentState(ECHOFWD);
-            }
-            case ECHOL -> {
-                if (echoL) {
-                    drone.setCurrentState(Drone.State.HEADINGL);
-                } else {
-                    drone.setCurrentState(Drone.State.FLY);
-                }
-            }
-            case ECHOFWD -> {
-                //buffer = "forward";
                 if (echoF) {
                     drone.setCurrentState(Drone.State.FLY);
                 } else {
-                    //drone.setCurrentState(Drone.State.ECHOR);
-                    drone.setCurrentState(Drone.State.BUFFERR);
+                    if (counter == 0) {
+                        drone.setCurrentState(Drone.State.ECHOL);
+                    } else {
+                        //drone.setCurrentState(Drone.State.ALTERNATING);
+                        if (alternating) {
+                            alternating = false;
+                            //drone.setCurrentState(Drone.State.ECHOR);
+                            firstTurnR = true;
+                            drone.setCurrentState(Drone.State.HEADINGR);
+                        } else {
+                            alternating = true;
+                            firstTurnL = true;
+                            //drone.setCurrentState(Drone.State.ECHOL);
+                            drone.setCurrentState(Drone.State.HEADINGL);
+                        }
+                    }
+                }
+            }
+            case ECHOL -> {
+                drone.setCurrentState(Drone.State.BUFFERL);
+            }
+            case BUFFERL -> {
+                if (echoL) {
+                    drone.setCurrentState(Drone.State.HEADINGL);
+                } else {
+                    drone.setCurrentState(Drone.State.ECHOR);
+                }
+            }
+            case ECHOR -> {
+                drone.setCurrentState(Drone.State.BUFFERR);
+            }
+            case BUFFERR -> {
+                if (echoR) {
+                    drone.setCurrentState(Drone.State.HEADINGR);
+                } else {
+                    drone.setCurrentState(Drone.State.FLY);
+                }
+            }
+            case FLY -> {drone.setCurrentState(Drone.State.SCAN);}
+            case HEADINGR, HEADINGL -> {
+                counter++;
+                drone.setCurrentState(Drone.State.SCAN);
+            }
+            case SCAN -> {
+                if (firstTurnR) {
+                    firstTurnR = false;
+                    drone.setCurrentState(Drone.State.HEADINGR);
+                } else if (firstTurnL) {
+                    firstTurnL = false;
+                    drone.setCurrentState(Drone.State.HEADINGL);
+                } else {
+                    drone.setCurrentState(Drone.State.ECHOFWD);
                 }
             }
             default -> {}
@@ -159,3 +145,5 @@ public class RescueLogic {
     }
 
 }
+
+//maybe make another switch where the states are if on ground what to do and if on land what transitions to do

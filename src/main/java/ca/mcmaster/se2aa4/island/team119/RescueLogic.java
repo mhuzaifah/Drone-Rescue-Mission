@@ -18,7 +18,7 @@ public class RescueLogic {
     }
 
     RadarSensor radarSensor = new RadarSensor();
-    Map map = new Map(drone);
+    //Map map = new Map(drone);
 
     boolean echoF, echoR, echoL = false;
     boolean firstTurnR, firstTurnL = false;

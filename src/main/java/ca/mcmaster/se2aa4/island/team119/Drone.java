@@ -3,7 +3,7 @@ package ca.mcmaster.se2aa4.island.team119;
 import org.json.JSONObject;
 
 public class Drone {
-
+    PhotoScanner photoScanner = new PhotoScanner();
     Direction direction;
     Integer batteryLevel;
     DroneController droneController = new DroneController();

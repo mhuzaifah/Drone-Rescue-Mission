@@ -6,6 +6,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import eu.ace_design.island.bot.IExplorerRaid;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
@@ -24,6 +25,8 @@ public class Explorer implements IExplorerRaid {
         intialEchoExecuted - For the first initial echo in order to store the maximum distance that can be travelled
      */
     public String echoResult = "";
+    public JSONArray creek;
+    public String site = "";
     String decisionExecuted = "";
     int maxDistance = -1;
     boolean intialEchoExecuted = false;
@@ -35,7 +38,6 @@ public class Explorer implements IExplorerRaid {
         logger.info("** Initializing the Exploration Command Center");
         JSONObject info = new JSONObject(new JSONTokener(new StringReader(s)));
         logger.info("** Initialization info:\n {}",info.toString(2));
-        MapParser mapParser = new MapParser();
         drone = new Drone(info);
         logger.info("The drone is facing {}", drone.direction);
         logger.info("Battery level is {}", drone.batteryLevel);
@@ -43,47 +45,10 @@ public class Explorer implements IExplorerRaid {
 
     @Override
     public String takeDecision() {
-
         JSONObject decision = new JSONObject();
-
-        /*
-            Logic of whether to explore the maze or stop
-            Stops if island is found or max distance has been travelled
-         */
-        //if(((!echoResult.isEmpty() && echoResult.equals("GROUND")) || (drone.flyCount == maxDistance))){
-        if((counter == 800)){
-            //if (drone.flyCount == 200) {
-            logger.info("DRONE FLY COUNT: {}", drone.flyCount);
-            logger.info("MAX DIST {}", maxDistance);
-            logger.info("ECHO RESULT {}", echoResult);
-            //logger.info("Island found.");
-            decision.put("action", "stop");
-
-            /*decisioncount = 1;
-            decision.put("action", "heading");
-            decision.put("parameters", new JSONObject().put("direction", drone.direction.lookRight().toString()));
-        }else if(decisioncount == 1) {
-            decision.put("action", "scan");
-            decisioncount = 2;
-        }else if(decisioncount == 2) {
-            decision.put("action", "fly");
-            logger.info("flown after turning right");
-            decisioncount = 3;
-        }else if(decisioncount == 3){
-            decision.put("action", "scan");
-            decisioncount = 4;
-        }else if (decisioncount == 4){
-            decision.put("action", "stop");
-            logger.info("stopped after turning right");*/
-        }
-        else {
-            counter++;
-            drone.explore(decision, echoResult);
-        }
-
+        drone.explore(decision, echoResult);
         decisionExecuted = decision.getString("action");
         logger.info("** Decision: {}", decision.toString());
-
         return decision.toString();
     }
 
@@ -117,6 +82,16 @@ public class Explorer implements IExplorerRaid {
         } else {
             echoResult = "";
         }
+
+        try{
+            creek = extraInfo.getJSONArray("creeks");
+            logger.info("Creek {}", creek);
+        }
+        catch(Exception e){
+            logger.info("no creek found");
+        }
+
+        //site = response.getString("sites");
 
         logger.info("Additional information received: {}", extraInfo);
     }

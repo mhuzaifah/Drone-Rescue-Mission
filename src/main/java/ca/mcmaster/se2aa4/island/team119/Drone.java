@@ -20,7 +20,8 @@ public class Drone {
         HEADINGL,
         BUFFERR,
         BUFFERL,
-        BUFFERF
+        BUFFERF,
+        STOP
     }
 
     Drone(JSONObject info) {

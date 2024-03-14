@@ -12,9 +12,7 @@ import org.json.JSONTokener;
 public class RadarSensor {
     private final Logger logger = LogManager.getLogger();
 
-<<<<<<< HEAD
     RadarSensor() {}
-=======
     RadarSensor(Drone drone) {
         //this.drone = drone;
     }
@@ -26,7 +24,6 @@ public class RadarSensor {
     //JSONObject response = new JSONObject(new JSONTokener(new StringReader(s)));
     //JSONObject extraInfo = response.getJSONObject("extras");
     //String echoResult;
->>>>>>> 464ac69bb0de65d9a5d9b67942b8d0c60500b4a9
     public boolean echoGround(JSONObject decision, Direction direction, String echoResult){
         decision.put("action", "echo");
         decision.put("parameters", new JSONObject().put("direction", direction.toString()));

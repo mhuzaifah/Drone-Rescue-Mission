@@ -19,23 +19,23 @@ public enum Direction {
     }
 
     public Direction lookRight() {
-        switch (this) {
-            case NORTH: return EAST;
-            case EAST: return SOUTH;
-            case SOUTH: return WEST;
-            case WEST: return NORTH;
-            default: throw new IllegalStateException("Unexpected value: " + this);
-        }
+        return switch (this) {
+            case NORTH -> EAST;
+            case EAST -> SOUTH;
+            case SOUTH -> WEST;
+            case WEST -> NORTH;
+            default -> throw new IllegalStateException("Unexpected value: " + this);
+        };
     }
 
     public Direction lookLeft() {
-        switch (this) {
-            case NORTH: return WEST;
-            case WEST: return SOUTH;
-            case SOUTH: return EAST;
-            case EAST: return NORTH;
-            default: throw new IllegalStateException("Unexpected value: " + this);
-        }
+        return switch (this) {
+            case NORTH -> WEST;
+            case WEST -> SOUTH;
+            case SOUTH -> EAST;
+            case EAST -> NORTH;
+            default -> throw new IllegalStateException("Unexpected value: " + this);
+        };
     }
 
 }

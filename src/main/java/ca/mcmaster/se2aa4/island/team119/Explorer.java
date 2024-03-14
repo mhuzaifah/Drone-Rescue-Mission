@@ -16,6 +16,8 @@ public class Explorer implements IExplorerRaid {
 
     int counter = 0;
     Drone drone;
+    Map map;
+    InfoTranslator translator;
     ResultProcessor resultProcessor = new ResultProcessor();
 
     //Variables used to execute exploring logic. Will need to be refactored and encapsulated somewhere else eventually
@@ -37,8 +39,11 @@ public class Explorer implements IExplorerRaid {
     public void initialize(String s) {
         logger.info("** Initializing the Exploration Command Center");
         JSONObject info = new JSONObject(new JSONTokener(new StringReader(s)));
+        translator = new InfoTranslator();
         logger.info("** Initialization info:\n {}",info.toString(2));
-        drone = new Drone(info);
+        Information initInfo = translator.parse(info);
+        drone = new Drone(initInfo.retreive(InfoType.HEADING, Direction.class), initInfo.retreive(InfoType.BUDGET, Integer.class));
+        map = new Map(drone);
         logger.info("The drone is facing {}", drone.direction);
         logger.info("Battery level is {}", drone.batteryLevel);
     }
@@ -55,19 +60,20 @@ public class Explorer implements IExplorerRaid {
     @Override
     public void acknowledgeResults(String s) {
         JSONObject response = new JSONObject(new JSONTokener(new StringReader(s)));
+        Information parsedResponse = translator.parse(response);
 
         logger.info("** Response received:\n"+response.toString(2));
 
-        int cost = response.getInt("cost");
+        Integer cost = parsedResponse.retreive(InfoType.COST, Integer.class);
         logger.info("The cost of the action was {}", cost);
 
         drone.batteryLevel -= cost;
         logger.info("The battery of the drone is {}", drone.batteryLevel);
 
-        String status = response.getString("status");
+        String status = parsedResponse.retreive(InfoType.STATUS, String.class);
         logger.info("The status of the drone is {}", status);
 
-        JSONObject extraInfo = response.getJSONObject("extras");
+        JSONObject extraInfo = parsedResponse.retreive(InfoType.EXTRAS, JSONObject.class);
 
         //Checking if we echoed, and if we did then getting the max distance (only for first forward echo) and storing echo results
         if(decisionExecuted.equals("echo")) {

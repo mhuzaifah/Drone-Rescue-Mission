@@ -24,9 +24,9 @@ public class Drone {
         STOP
     }
 
-    Drone(JSONObject info) {
-        this.direction = determineInitDirection(info.getString("heading"));
-        this.batteryLevel = info.getInt("budget");
+    Drone(Direction direction, Integer battery) {
+        this.direction = direction;
+        this.batteryLevel = battery;
         this.currentState = State.ECHOFWD;
         this.flyCount = 0;
     }

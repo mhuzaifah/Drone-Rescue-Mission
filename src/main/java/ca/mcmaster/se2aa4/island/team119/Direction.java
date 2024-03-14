@@ -18,6 +18,16 @@ public enum Direction {
         return this.abreviation;
     }
 
+    public static Direction toDirection(String direc) {
+        if(direc.equals("N")) return NORTH;
+        else if(direc.equals("S")) return SOUTH;
+        else if(direc.equals("E")) return EAST;
+        else if(direc.equals("W")) return WEST;
+        else {
+            throw new IllegalArgumentException("Invalid Direction " + direc);
+        }
+    }
+
     public Direction lookRight() {
         return switch (this) {
             case NORTH -> EAST;

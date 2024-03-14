@@ -101,3 +101,4 @@ public class Map {
         this.setCurrentPos(pos);
     }
 }
+

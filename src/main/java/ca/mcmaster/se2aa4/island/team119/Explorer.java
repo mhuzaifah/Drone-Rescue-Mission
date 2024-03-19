@@ -1,6 +1,7 @@
 package ca.mcmaster.se2aa4.island.team119;
 
 import java.io.StringReader;
+import java.util.Objects;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -27,7 +28,8 @@ public class Explorer implements IExplorerRaid {
         intialEchoExecuted - For the first initial echo in order to store the maximum distance that can be travelled
      */
     public String echoResult = "";
-    public JSONArray creek;
+    public String creek = "";
+    public boolean creekFound = false;
     public String site = "";
     String decisionExecuted = "";
     int maxDistance = -1;
@@ -90,7 +92,7 @@ public class Explorer implements IExplorerRaid {
         }
 
         try{
-            creek = extraInfo.getJSONArray("creeks");
+            creek = extraInfo.getJSONArray("creeks").getString(0);
             logger.info("Creek {}", creek);
         }
         catch(Exception e){
@@ -99,12 +101,17 @@ public class Explorer implements IExplorerRaid {
 
         //site = response.getString("sites");
 
+        if (!Objects.equals(creek, "")){
+            creekFound = true;
+        }
+
         logger.info("Additional information received: {}", extraInfo);
     }
 
     @Override
     public String deliverFinalReport() {
-        FinalReport finalReport = new FinalReport();
+        FinalReport finalReport = new FinalReport(creekFound, creek);
+        logger.info(finalReport.getReport());
         return finalReport.getReport();
     }
 

@@ -6,10 +6,13 @@ public enum InfoType {
 
     HEADING("heading"),
     BUDGET("budget"),
+
     COST("cost"),
     EXTRAS("extras"),
-    STATUS("status");
+    STATUS("status"),
 
+    ACTION("action"),
+    PARAMETERS("parameters");
 
     private final String abreviation;
 

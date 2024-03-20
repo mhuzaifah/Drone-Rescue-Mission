@@ -6,16 +6,9 @@ public class InfoTranslator {
 
     InfoTranslator() {}
 
-    public Information parse(JSONObject jsonInfo) {
-        Information info = new Information();
-        for(String key : jsonInfo.keySet()) {
-            for(InfoType type : InfoType.values()) {
-                if (type.matches(key)) {
-                    info.store(type, jsonInfo.get(key));
-                }
-            }
-        }
-        return info;
-    }
+//    public Response parse(JSONObject jsonInfo) {
+//        Response result = new Response(jsonInfo.getInt("cost"), jsonInfo.getJSONObject("extras"), jsonInfo.getString("status"));
+//        return result;
+//    }
 
 }

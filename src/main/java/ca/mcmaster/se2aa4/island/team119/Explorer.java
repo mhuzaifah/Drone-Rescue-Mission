@@ -7,19 +7,21 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import eu.ace_design.island.bot.IExplorerRaid;
+import org.apache.regexp.RE;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
 public class Explorer implements IExplorerRaid {
 
-    private final Logger logger = LogManager.getLogger();
+    public final Logger logger = LogManager.getLogger();
 
-    int counter = 0;
-    Drone drone;
-    Map map;
-    InfoTranslator translator;
-    ResultProcessor resultProcessor = new ResultProcessor();
+    private Drone drone;
+    private Map map;
+    private DecisionMaker decisionMaker;
+    private InfoTranslator translator;
+    private ca.mcmaster.se2aa4.island.team119.Response information;
+    private ca.mcmaster.se2aa4.island.team119.Response Response;
 
     //Variables used to execute exploring logic. Will need to be refactored and encapsulated somewhere else eventually
     /*
@@ -36,76 +38,80 @@ public class Explorer implements IExplorerRaid {
     boolean intialEchoExecuted = false;
     int decisioncount = 0;
 
-
     @Override
     public void initialize(String s) {
         logger.info("** Initializing the Exploration Command Center");
-        JSONObject info = new JSONObject(new JSONTokener(new StringReader(s)));
+        JSONObject initInfo = new JSONObject(new JSONTokener(new StringReader(s)));
         translator = new InfoTranslator();
-        logger.info("** Initialization info:\n {}",info.toString(2));
-        Information initInfo = translator.parse(info);
-        drone = new Drone(initInfo.retreive(InfoType.HEADING, Direction.class), initInfo.retreive(InfoType.BUDGET, Integer.class));
-        map = new Map(drone);
-        logger.info("The drone is facing {}", drone.direction);
-        logger.info("Battery level is {}", drone.batteryLevel);
+        logger.info("** Initialization info:\n {}",initInfo.toString(2));
+        map = new Map();
+        drone = new Drone(initInfo.getString("heading"), initInfo.getInt("budget"));
+        decisionMaker = new DecisionMaker(drone, map);
+        logger.info("The drone is facing {}", drone.getHeading());
+        logger.info("Battery level is {}", drone.getBattery());
     }
 
     @Override
     public String takeDecision() {
-        JSONObject decision = new JSONObject();
-        drone.explore(decision, echoResult);
-        decisionExecuted = decision.getString("action");
-        logger.info("** Decision: {}", decision.toString());
-        return decision.toString();
+        if(drone.getBattery() > 100) {
+            try {
+                decisioncount++;
+                JSONObject decision = decisionMaker.makeDecision();
+                logger.info("** Decision: {}", decision.toString());
+                return decision.toString();
+            } catch (IllegalArgumentException e) {
+                //Refactor this catch block
+                logger.info("ERROR: {}", e.getMessage());
+                return null;
+            }
+        }
+        else{
+            if(decisioncount == 0) {
+                decisioncount++;
+                return new JSONObject().put("action", "scan").toString();
+            }
+            else {
+                return new JSONObject().put("action", "stop").toString();
+            }
+        }
     }
 
     @Override
     public void acknowledgeResults(String s) {
-        JSONObject response = new JSONObject(new JSONTokener(new StringReader(s)));
-        Information parsedResponse = translator.parse(response);
+        JSONObject responseInfo = new JSONObject(new JSONTokener(new StringReader(s)));
+        logger.info("** Response received:\n"+ responseInfo.toString(2));
 
-        logger.info("** Response received:\n"+response.toString(2));
+        Response response = new Response(responseInfo, decisionMaker.getPrevOperation());
+        map.update(response, drone.getHeading());
+        drone.update(response);
 
-        Integer cost = parsedResponse.retreive(InfoType.COST, Integer.class);
-        logger.info("The cost of the action was {}", cost);
+        logger.info("The battery of the drone is {}", drone.getBattery());
+        // logger.info("The cost of the action was {}", information.getCost());
+        // logger.info("The status of the drone is {}", information.getStatus());
 
-        drone.batteryLevel -= cost;
-        logger.info("The battery of the drone is {}", drone.batteryLevel);
+//        //Checking if we echoed, and if we did then getting the max distance (only for first forward echo) and storing echo results
+//        if(decisionExecuted.equals("echo")) {
+//            echoResult = extraInfo.getString("found");
+//
+//            if(!intialEchoExecuted) {
+//                logger.info("GETTING MAX RANGE {}", extraInfo.getInt("range"));
+//                maxDistance = extraInfo.getInt("range");
+//                intialEchoExecuted = true;
+//            }
+//
+//        } else {
+//            echoResult = "";
+//        }
+//
+//        try{
+//            creek = extraInfo.getJSONArray("creeks");
+//            logger.info("Creek {}", creek);
+//        }
+//        catch(Exception e){
+//            logger.info("no creek found");
+//        }
 
-        String status = parsedResponse.retreive(InfoType.STATUS, String.class);
-        logger.info("The status of the drone is {}", status);
-
-        JSONObject extraInfo = parsedResponse.retreive(InfoType.EXTRAS, JSONObject.class);
-
-        //Checking if we echoed, and if we did then getting the max distance (only for first forward echo) and storing echo results
-        if(decisionExecuted.equals("echo")) {
-            echoResult = extraInfo.getString("found");
-
-            if(!intialEchoExecuted) {
-                logger.info("GETTING MAX RANGE {}", extraInfo.getInt("range"));
-                maxDistance = extraInfo.getInt("range");
-                intialEchoExecuted = true;
-            }
-
-        } else {
-            echoResult = "";
-        }
-
-        try{
-            creek = extraInfo.getJSONArray("creeks").getString(0);
-            logger.info("Creek {}", creek);
-        }
-        catch(Exception e){
-            logger.info("no creek found");
-        }
-
-        //site = response.getString("sites");
-
-        if (!Objects.equals(creek, "")){
-            creekFound = true;
-        }
-
-        logger.info("Additional information received: {}", extraInfo);
+        logger.info("Additional information received: {}", responseInfo.get("extras"));
     }
 
     @Override

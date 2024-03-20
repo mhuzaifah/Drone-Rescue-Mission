@@ -3,56 +3,81 @@ package ca.mcmaster.se2aa4.island.team119;
 import org.json.JSONObject;
 
 public class Drone {
-    PhotoScanner photoScanner = new PhotoScanner();
-    Direction direction;
-    Integer batteryLevel;
-    //RescueLogic rescueLogic = new RescueLogic(this, decision, echoResult);
-    int flyCount; //Used to keep track of how far the drone has flown. Will have to refactor into using coordinates instead that are connected with the Map
-    private State currentState;
-    public enum State {
-        FLY,
-        ECHOFWD,
-        ECHOR,
-        ECHOL,
-        SCAN,
-        HEADINGR,
-        HEADINGL,
-        BUFFERR,
-        BUFFERL,
-        BUFFERF,
-        STOP
-    }
+    private Direction heading;
+    private Integer batteryLevel;
 
-    Drone(Direction direction, Integer battery) {
-        this.direction = direction;
+    Drone(String direction, Integer battery) {
+        this.heading = Direction.toDirection(direction);
         this.batteryLevel = battery;
-        this.currentState = State.ECHOFWD;
-        this.flyCount = 0;
     }
 
-    private Direction determineInitDirection(String directionAbv) {
-        switch (directionAbv) {
-            case "N" -> { return Direction.NORTH; }
-            case "S" -> { return Direction.SOUTH; }
-            case "E" -> { return Direction.EAST; }
-            case "W" -> { return Direction.WEST; }
-            default -> throw new IllegalStateException("Unexpected value: " + directionAbv);
-        }
+    public JSONObject scan() {
+        JSONObject cmd = new JSONObject();
+        cmd.put("action", "scan");
+        return cmd;
     }
 
-    public State getCurrentState() {
-        return this.currentState;
+    public JSONObject echoFwd() {
+        JSONObject cmd = new JSONObject();
+        cmd.put("action", "echo");
+        cmd.put("parameters", new JSONObject().put("direction", this.heading.toString()));
+        return cmd;
     }
 
-    public void setCurrentState(State newState) {
-        this.currentState = newState;
+    public JSONObject echoRight() {
+        JSONObject cmd = new JSONObject();
+        cmd.put("action", "echo");
+        cmd.put("parameters", new JSONObject().put("direction", this.heading.lookRight().toString()));
+        return cmd;
     }
 
-    public void explore(JSONObject decision, String echoResult) {
-        //rescueLogic.makeMove(decision, echoResult);
-        DroneController droneController = new DroneController(this, decision, echoResult);
-        RescueLogic rescueLogic = new RescueLogic(this, droneController);
-        rescueLogic.makeMove();
+    public JSONObject echoLeft() {
+        JSONObject cmd = new JSONObject();
+        cmd.put("action", "echo");
+        cmd.put("parameters", new JSONObject().put("direction", this.heading.lookLeft().toString()));
+        return cmd;
     }
+
+    public JSONObject flyFwd() {
+        JSONObject cmd = new JSONObject();
+        cmd.put("action", "fly");
+        return cmd;
+    }
+
+    public JSONObject flyRight() {
+        JSONObject cmd = new JSONObject();
+        cmd.put("action", "heading");
+        this.heading = heading.lookRight();
+        cmd.put("parameters", new JSONObject().put("direction", this.heading.toString()));
+        return cmd;
+    }
+
+    public JSONObject flyLeft() {
+        JSONObject cmd = new JSONObject();
+        cmd.put("action", "heading");
+        this.heading = heading.lookLeft();
+        cmd.put("parameters", new JSONObject().put("direction", this.heading.toString()));
+        return cmd;
+    }
+
+    public JSONObject stop() {
+        JSONObject cmd = new JSONObject();
+        cmd.put("action", "stop");
+        return cmd;
+    }
+
+    public void update(Response response) {
+        Integer cost = response.getCost();
+        this.batteryLevel -= cost;
+    }
+
+    public Direction getHeading() {
+        return this.heading;
+    }
+
+    public Integer getBattery() {
+        return this.batteryLevel;
+    }
+
 }
 

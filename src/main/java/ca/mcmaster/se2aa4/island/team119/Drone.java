@@ -6,8 +6,7 @@ public class Drone {
     PhotoScanner photoScanner = new PhotoScanner();
     Direction direction;
     Integer batteryLevel;
-    DroneController droneController = new DroneController();
-    RescueLogic rescueLogic = new RescueLogic(this);
+    //RescueLogic rescueLogic = new RescueLogic(this, decision, echoResult);
     int flyCount; //Used to keep track of how far the drone has flown. Will have to refactor into using coordinates instead that are connected with the Map
     private State currentState;
     public enum State {
@@ -50,7 +49,10 @@ public class Drone {
     }
 
     public void explore(JSONObject decision, String echoResult) {
-        rescueLogic.makeMove(decision, echoResult);
+        //rescueLogic.makeMove(decision, echoResult);
+        DroneController droneController = new DroneController(this, decision, echoResult);
+        RescueLogic rescueLogic = new RescueLogic(this, droneController);
+        rescueLogic.makeMove();
     }
 }
 

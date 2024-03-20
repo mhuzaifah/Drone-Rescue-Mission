@@ -8,17 +8,16 @@ import static ca.mcmaster.se2aa4.island.team119.Drone.State.*;
 
 public class RescueLogic {
 
-    private final Logger logger = LogManager.getLogger();
-    ResultProcessor resultProcessor = new ResultProcessor();
-
+    //private final Logger logger = LogManager.getLogger();
+    private final DroneController droneController;
     private Drone drone;
 
-    RescueLogic(Drone drone) {
+    RescueLogic(Drone drone, DroneController droneController) {
         this.drone = drone;
+        this.droneController = droneController;
     }
-
-    RadarSensor radarSensor = new RadarSensor();
-    //Map map = new Map(drone);
+    //RadarSensor radarSensor = new RadarSensor();
+    //Map m ap = new Map(drone);
 
     boolean echoF, echoR, echoL = false;
     boolean firstTurnR, firstTurnL = false;
@@ -27,41 +26,50 @@ public class RescueLogic {
     boolean alternating = false;
 
 
-    public void makeMove(JSONObject decision, String echoResult) {
+
+    public void makeMove() {
         switch(drone.getCurrentState()) {
             case BUFFERR, ECHOR -> {
-                echoR = radarSensor.echoGround(decision, drone.direction.lookRight(), echoResult);
+                //echoR = radarSensor.echoGround(decision, drone.direction.lookRight(), echoResult);
+                echoR = droneController.echoRight();
             }
             case BUFFERL, ECHOL -> {
-                echoL = radarSensor.echoGround(decision, drone.direction.lookLeft(), echoResult);
+                //echoL = radarSensor.echoGround(decision, drone.direction.lookLeft(), echoResult);
+                echoL = droneController.echoLeft();
             }
             case BUFFERF, ECHOFWD -> {
-                echoF = radarSensor.echoGround(decision, drone.direction, echoResult);
+                //echoF = radarSensor.echoGround(decision, drone.direction, echoResult);
+                echoF = droneController.echoForward();
             }
             case HEADINGR -> {
-                decision.put("action", "heading");
+                /*decision.put("action", "heading");
                 decision.put("parameters", new JSONObject().put("direction", drone.direction.lookRight().toString()));
                 drone.flyCount++;
-                drone.direction = drone.direction.lookRight();
+                drone.direction = drone.direction.lookRight();*/
+                droneController.turnRight();
                 //map.turnRight();
             }
             case HEADINGL -> {
-                decision.put("action", "heading");
+                /*decision.put("action", "heading");
                 decision.put("parameters", new JSONObject().put("direction", drone.direction.lookLeft().toString()));
                 drone.flyCount++;
-                drone.direction = drone.direction.lookLeft();
+                drone.direction = drone.direction.lookLeft();*/
+                droneController.turnLeft();
                 //map.turnLeft();
             }
             case FLY -> {
-                decision.put("action", "fly");
-                drone.flyCount++;
+                //decision.put("action", "fly");
+                //drone.flyCount++;
+                droneController.forward();
                 //map.forward();
             }
             case SCAN -> {
-                decision.put("action", "scan");
+                //decision.put("action", "scan");
+                droneController.scan();
             }
             case STOP -> {
-                decision.put("action", "stop");
+                //decision.put("action", "stop");
+                droneController.returnToBase();
             }
             default -> { }
         }

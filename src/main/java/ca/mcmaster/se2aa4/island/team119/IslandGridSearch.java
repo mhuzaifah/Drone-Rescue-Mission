@@ -18,30 +18,31 @@ public class IslandGridSearch implements SearchState, SearchAlgo {
         ADJUST
     }
     private Queue<Operation> operations;
-    private TurnDirection turnDirection;
+    private Operation turn;
+    private Operation echoForTurn;
     private Boolean loopedBack = false;
-    enum TurnDirection {
-        RIGHT,
-        LEFT
-    }
 
     IslandGridSearch(DecisionMaker decisionMaker) {
         this.decisionMaker = decisionMaker;
         this.currSubState = SubState.EXPLORE;
         this.operations = new ArrayDeque<>();
-        setTurnDirection();
+        setDirectionOfInterest();
         operations.add(new Operation(Action.ECHOFORWARD));
     }
 
-    private void setTurnDirection() {
+    private void setDirectionOfInterest() {
         Direction droneHeading = decisionMaker.getDrone().getHeading();
 
         //NEED TO CHANGE BASED OFF STARTING CORDS
-        //VARIES DEPENDING ON WHICH CYCLE YOURE ON
-        if(droneHeading == Direction.SOUTH || droneHeading == Direction.EAST)
-            turnDirection = loopedBack ? TurnDirection.LEFT : TurnDirection.RIGHT;
-        else
-            turnDirection = loopedBack ? TurnDirection.RIGHT : TurnDirection.LEFT;
+        //VARIES DEPENDING ON WHICH CYCLE YOU'RE ON
+        if(droneHeading == Direction.SOUTH || droneHeading == Direction.EAST) {
+            turn = new Operation(loopedBack ? Action.FLYLEFT : Action.FLYRIGHT);
+            echoForTurn = new Operation(loopedBack ? Action.ECHOLEFT : Action.ECHORIGHT);
+        }
+        else {
+            turn = new Operation(loopedBack ? Action.FLYRIGHT : Action.FLYLEFT);
+            echoForTurn = new Operation(loopedBack ? Action.ECHORIGHT : Action.ECHOLEFT);
+        }
     }
 
     @Override
@@ -75,25 +76,17 @@ public class IslandGridSearch implements SearchState, SearchAlgo {
 
     @Override
     public void transition() {
-
+        setDirectionOfInterest();
         switch (currSubState) {
             case EXPLORE -> {
                 if(decisionMaker.getPrevOperation().isEchoFwd()) {
                     if (decisionMaker.getMap().inFront().sameTileType(new MapTile("OCEAN"))) {
                         LogManager.getLogger().info("OCEAN IN FRONT SO TURNING");
-                        currSubState = SubState.TURN;
-
-                        //Setting up turning logic
-                        if(turnDirection == TurnDirection.LEFT) {
-                            operations.add(new Operation(Action.FLYLEFT));
-                            operations.add(new Operation(Action.FLYLEFT));
-                        }
-                        else {
-                            operations.add(new Operation(Action.FLYRIGHT));
-                            operations.add(new Operation(Action.FLYRIGHT));
-                        }
+                        operations.add(new Operation(Action.FLYFORWARD));
                         operations.add(new Operation(Action.SCAN));
-
+                        currSubState = SubState.TURN;
+                        setDirectionOfInterest();
+                        operations.add(echoForTurn);
                     }
                     else {
                         LogManager.getLogger().info("NO OCEAN IN FRONT, INSTEAD {}", decisionMaker.getMap().inFront().toString());
@@ -105,7 +98,7 @@ public class IslandGridSearch implements SearchState, SearchAlgo {
                             operations.add(new Operation(Action.SCAN));
                         } else {
                             LogManager.getLogger().info("JUST FLYING TO NEXT LAND");
-                            for(int i=0; i<distInFront; i++)
+                            for(int i=0; i < distInFront; i++)
                                 operations.add(new Operation(Action.FLYFORWARD));
                         }
                         LogManager.getLogger().info("ECHOING");
@@ -114,14 +107,25 @@ public class IslandGridSearch implements SearchState, SearchAlgo {
                 }
             }
             case TURN -> {
-                if(decisionMaker.getPrevOperation().isScan()) {
-                    setTurnDirection();
-                    operations.add(new Operation(Action.ECHOFORWARD));
+                Operation prevOperation = decisionMaker.getPrevOperation();
+                if(prevOperation.isEchoRight() || prevOperation.isEchoLeft()) {
+                    Integer distance = prevOperation.isEchoRight() ? decisionMaker.getMap().getDistRight() : decisionMaker.getMap().getDistLeft();
+                    if (distance > 1) {
+                        operations.add(turn);
+                        operations.add(turn);
+                        operations.add(new Operation(Action.ECHOFORWARD));
+                    }
+                    else {
+                        operations.add(new Operation(Action.FLYFORWARD));
+                        operations.add(echoForTurn);
+                    }
                 }
-                else if(decisionMaker.getPrevOperation().isEchoFwd()) {
-
+                else if(prevOperation.isEchoFwd()) {
+                    LogManager.getLogger().info("CHECKING ECHO FORWARD RESULT TO SEE IF WE SHOULD ADJUST OR NOT");
                     if(decisionMaker.getMap().inFront().sameTileType(new MapTile("OCEAN"))) {
+                        LogManager.getLogger().info("LOOPED BACK {}", loopedBack);
                         if(!loopedBack) {
+                            LogManager.getLogger().info("GOING TO ADJUST", loopedBack);
                             currSubState = SubState.ADJUST;
                             operations.add(new Operation(Action.ECHORIGHT));
                             operations.add(new Operation(Action.ECHOLEFT));
@@ -133,7 +137,6 @@ public class IslandGridSearch implements SearchState, SearchAlgo {
                         currSubState = SubState.EXPLORE;
                         operations.add(new Operation(Action.ECHOFORWARD));
                     }
-
                 }
             }
             case ADJUST -> {
@@ -156,7 +159,7 @@ public class IslandGridSearch implements SearchState, SearchAlgo {
                     if(dist == 0) {
                         operations.add(new Operation(Action.FLYFORWARD));
                     }
-                    else if(dist == 1){
+                    else {
                         operations.add(new Operation(Action.FLYFORWARD));
 //                        operations.add(new Operation(Action.FLYFORWARD));
 //                        operations.add(new Operation(Action.FLYFORWARD));
@@ -171,7 +174,7 @@ public class IslandGridSearch implements SearchState, SearchAlgo {
                     LogManager.getLogger().info("SETTING BACK TO EXPLORE AFTER ADJUSTING");
                     currSubState = SubState.EXPLORE;
                     loopedBack = true;
-                    setTurnDirection();
+                    setDirectionOfInterest();
                     LogManager.getLogger().info("LOOPED BACK IS {}", loopedBack);
                     operations.add(new Operation(Action.ECHOFORWARD));
                     LogManager.getLogger().info("SIZE {}", operations.size());

@@ -7,8 +7,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import eu.ace_design.island.bot.IExplorerRaid;
-import org.apache.regexp.RE;
-import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
@@ -86,32 +84,18 @@ public class Explorer implements IExplorerRaid {
         drone.update(response);
 
         logger.info("The battery of the drone is {}", drone.getBattery());
-        // logger.info("The cost of the action was {}", information.getCost());
-        // logger.info("The status of the drone is {}", information.getStatus());
 
-//        //Checking if we echoed, and if we did then getting the max distance (only for first forward echo) and storing echo results
-//        if(decisionExecuted.equals("echo")) {
-//            echoResult = extraInfo.getString("found");
-//
-//            if(!intialEchoExecuted) {
-//                logger.info("GETTING MAX RANGE {}", extraInfo.getInt("range"));
-//                maxDistance = extraInfo.getInt("range");
-//                intialEchoExecuted = true;
-//            }
-//
-//        } else {
-//            echoResult = "";
-//        }
-//
-//        try{
-//            creek = extraInfo.getJSONArray("creeks");
-//            logger.info("Creek {}", creek);
-//        }
-//        catch(Exception e){
-//            logger.info("no creek found");
-//        }
+        try{
+            creek = response.getExtras().getJSONArray("creeks").getString(0);
+        }
+        catch(Exception ignored){
+        }
 
-        logger.info("Additional information received: {}", responseInfo.get("extras"));
+        if (!Objects.equals(creek, "")){
+            creekFound = true;
+        }
+
+        logger.info("Additional information received: {}", response.getExtras());
     }
 
     @Override

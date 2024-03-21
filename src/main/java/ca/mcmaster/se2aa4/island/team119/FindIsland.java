@@ -133,7 +133,7 @@ public class FindIsland implements SearchState {
                 if(operations.isEmpty())
                     this.finished = true;
             }
-            default -> {} //Never should reach this state
+            default -> {}
         }
     }
 

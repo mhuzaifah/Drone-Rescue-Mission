@@ -50,15 +50,7 @@ public class IslandGridSearch implements SearchState, SearchAlgo {
 
         LogManager.getLogger().info("CURRENT SUBSTATE {}", currSubState.toString());
         switch (currSubState) {
-            case EXPLORE -> {
-                transition();
-                return operations.remove();
-            }
-            case TURN -> {
-                transition();
-                return operations.remove();
-            }
-            case ADJUST -> {
+            case EXPLORE, TURN, ADJUST -> {
                 transition();
                 return operations.remove();
             }

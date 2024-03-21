@@ -7,9 +7,7 @@ public class Operation {
         this.action = action;
     }
 
-    public boolean isEchoLeft() {
-        return this.action == Action.ECHOLEFT;
-    }
+    public boolean isEchoLeft() {return this.action == Action.ECHOLEFT;}
 
     public boolean isEchoRight() {
         return this.action == Action.ECHORIGHT;

@@ -165,8 +165,8 @@ public class Map {
     public POI findClosestCreek() throws IndexOutOfBoundsException{
         POI closestCreek = creeks.get(creeks.size()-1);
         if (emergencySite != null) {
-            int emergencySiteX = emergencySite.coordinate.getX();
-            int emergencySiteY = emergencySite.coordinate.getY();
+            int emergencySiteX = emergencySite.getCoordinate().getX();
+            int emergencySiteY = emergencySite.getCoordinate().getY();
 
             int creekX;
             int creekY;
@@ -174,8 +174,8 @@ public class Map {
             double minDistance = Double.MAX_VALUE;
 
             for (POI creek : creeks) {
-                creekX = creek.coordinate.getX();
-                creekY = creek.coordinate.getY();
+                creekX = creek.getCoordinate().getX();
+                creekY = creek.getCoordinate().getY();
                 double distance = Math.sqrt(Math.pow((emergencySiteX - creekX), 2) + Math.pow((emergencySiteY - creekY), 2));
                 if (distance < minDistance) {
                     minDistance = distance;

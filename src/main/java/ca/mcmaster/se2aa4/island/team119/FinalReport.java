@@ -14,7 +14,7 @@ public class FinalReport {
 
     public String getReport() {
         try{
-            return map.findClosestCreek().id;
+            return map.findClosestCreek().getId();
         }
         catch (IndexOutOfBoundsException e){
             return "No creek found";

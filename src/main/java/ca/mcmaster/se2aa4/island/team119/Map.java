@@ -108,7 +108,7 @@ public class Map {
         LogManager.getLogger().info("GOT IT, {}", resultType.toString());
         if(resultType == ResultType.FLYFWDRESULT) {
             logger.info(droneCord.toString());
-            droneCord.flyFwd(droneHeading);
+            droneCord.flyFwd(1, droneHeading);
             logger.info(droneCord.toString());
             this.toRight = new MapTile("UNKNOWN");
             this.toLeft = new MapTile("UNKNOWN");
@@ -117,7 +117,7 @@ public class Map {
         }
         else if(resultType == ResultType.FLYLEFTRESULT) {
             logger.info(droneCord.toString());
-            droneCord.flyLeft(droneHeading);
+            droneCord.flyLeft(1, droneHeading);
             logger.info(droneCord.toString());
             this.inFront = new MapTile("UNKNOWN");
             this.toRight = new MapTile("UNKNOWN");
@@ -128,7 +128,7 @@ public class Map {
         }
         else if(resultType == ResultType.FLYRIGHTRESULT) {
             logger.info(droneCord.toString());
-            droneCord.flyRight(droneHeading);
+            droneCord.flyRight(1, droneHeading);
             logger.info(droneCord.toString());
             this.inFront = new MapTile("UNKNOWN");
             this.toRight = new MapTile("UNKNOWN");

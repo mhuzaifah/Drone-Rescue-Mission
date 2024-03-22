@@ -4,11 +4,9 @@ public class FinalReport {
 
     private String creek;
     private boolean creekFound;
-    String finalReport = "No creek found";
-
     Map map;
-    FinalReport(Map map) {
 
+    FinalReport(Map map) {
         this.map = map;
     }
 

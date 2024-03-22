@@ -30,11 +30,19 @@ public class MapTile  {
     }
 
     private Type toTile(String tileType) {
-        switch (tileType) {
-            case "OCEAN", "OUT_OF_RANGE" -> { return Type.OCEAN; }
-            case "UNKNOWN" -> { return Type.UNKNOWN; }
-            case "LAKE" -> { return Type.LAKE; }
-            default -> { return Type.LAND; }
+        switch (tileType.toLowerCase()) {
+            case "ground", "beach", "grassland" -> {
+                return Type.LAND;
+            }
+            case "lake" -> {
+                return Type.LAKE;
+            }
+            case "ocean", "out_of_range" -> {
+                return Type.OCEAN;
+            }
+            default -> {
+                return Type.UNKNOWN;
+            }
         }
     }
 

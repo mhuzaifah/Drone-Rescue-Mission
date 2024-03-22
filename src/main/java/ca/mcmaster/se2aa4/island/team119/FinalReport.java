@@ -6,17 +6,14 @@ public class FinalReport {
     private boolean creekFound;
     String finalReport = "No creek found";
 
-    FinalReport(boolean creekFound, String creek) {
-        this.creekFound = creekFound;
-        this.creek = creek;
+    Map map;
+    FinalReport(Map map) {
+        this.map = map;
     }
 
 
     public String getReport() {
-        if (creekFound){
-            finalReport = "Creek found. Creek ID: "+ creek;
-        }
-        return this.finalReport;
+        return map.findClosestCreek().id;
     }
 
 }

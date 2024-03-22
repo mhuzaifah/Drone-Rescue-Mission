@@ -161,9 +161,27 @@ public class Map {
         return this.distLeft != null ? this.distLeft : -1;
     }
 
-    //public POI findClosestCreek() {
+    public POI findClosestCreek() {
+        int emergencySiteX = emergencySite.coordinate.getX();
+        int emergencySiteY = emergencySite.coordinate.getY();
 
-    //}
+        int creekX;
+        int creekY;
+
+        double minDistance = Double.MAX_VALUE;
+        POI closestCreek = null;
+
+        for (POI creek : creeks) {
+            creekX = creek.coordinate.getX();
+            creekY = creek.coordinate.getY();
+            double distance = Math.sqrt(Math.pow((emergencySiteX - creekX), 2) + Math.pow((emergencySiteY - creekY), 2));
+            if (distance < minDistance) {
+                minDistance = distance;
+                closestCreek = creek;
+            }
+        }
+        return closestCreek;
+    }
 
 }
 

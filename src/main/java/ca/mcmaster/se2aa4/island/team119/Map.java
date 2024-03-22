@@ -29,6 +29,7 @@ public class Map {
     Map() {
         this.map = new HashMap<MapCoordinate, MapTile>();
         this.creeks = new ArrayList<POI>();
+        this.emergencySite = null;
         this.inFront = new MapTile("UNKNOWN");
         this.toRight = new MapTile("UNKNOWN");
         this.toLeft = new MapTile("UNKNOWN");
@@ -108,7 +109,7 @@ public class Map {
         LogManager.getLogger().info("GOT IT, {}", resultType.toString());
         if(resultType == ResultType.FLYFWDRESULT) {
             logger.info(droneCord.toString());
-            droneCord.flyFwd(1, droneHeading);
+            droneCord.flyFwd(droneHeading);
             logger.info(droneCord.toString());
             this.toRight = new MapTile("UNKNOWN");
             this.toLeft = new MapTile("UNKNOWN");
@@ -117,7 +118,7 @@ public class Map {
         }
         else if(resultType == ResultType.FLYLEFTRESULT) {
             logger.info(droneCord.toString());
-            droneCord.flyLeft(1, droneHeading);
+            droneCord.flyLeft(droneHeading);
             logger.info(droneCord.toString());
             this.inFront = new MapTile("UNKNOWN");
             this.toRight = new MapTile("UNKNOWN");
@@ -128,7 +129,7 @@ public class Map {
         }
         else if(resultType == ResultType.FLYRIGHTRESULT) {
             logger.info(droneCord.toString());
-            droneCord.flyRight(1, droneHeading);
+            droneCord.flyRight(droneHeading);
             logger.info(droneCord.toString());
             this.inFront = new MapTile("UNKNOWN");
             this.toRight = new MapTile("UNKNOWN");
@@ -161,27 +162,28 @@ public class Map {
         return this.distLeft != null ? this.distLeft : -1;
     }
 
-    public POI findClosestCreek() {
-        int emergencySiteX = emergencySite.coordinate.getX();
-        int emergencySiteY = emergencySite.coordinate.getY();
+    public POI findClosestCreek() throws IndexOutOfBoundsException{
+        POI closestCreek = creeks.get(creeks.size()-1);
+        if (emergencySite != null) {
+            int emergencySiteX = emergencySite.getCoordinate().getX();
+            int emergencySiteY = emergencySite.getCoordinate().getY();
 
-        int creekX;
-        int creekY;
+            int creekX;
+            int creekY;
 
-        double minDistance = Double.MAX_VALUE;
-        POI closestCreek = null;
+            double minDistance = Double.MAX_VALUE;
 
-        for (POI creek : creeks) {
-            creekX = creek.coordinate.getX();
-            creekY = creek.coordinate.getY();
-            double distance = Math.sqrt(Math.pow((emergencySiteX - creekX), 2) + Math.pow((emergencySiteY - creekY), 2));
-            if (distance < minDistance) {
-                minDistance = distance;
-                closestCreek = creek;
+            for (POI creek : creeks) {
+                creekX = creek.getCoordinate().getX();
+                creekY = creek.getCoordinate().getY();
+                double distance = Math.sqrt(Math.pow((emergencySiteX - creekX), 2) + Math.pow((emergencySiteY - creekY), 2));
+                if (distance < minDistance) {
+                    minDistance = distance;
+                    closestCreek = creek;
+                }
             }
         }
         return closestCreek;
     }
 
 }
-

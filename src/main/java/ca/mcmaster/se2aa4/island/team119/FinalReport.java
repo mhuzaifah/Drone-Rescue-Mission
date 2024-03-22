@@ -8,12 +8,17 @@ public class FinalReport {
 
     Map map;
     FinalReport(Map map) {
+
         this.map = map;
     }
 
-
     public String getReport() {
-        return map.findClosestCreek().id;
+        try{
+            return map.findClosestCreek().getId();
+        }
+        catch (IndexOutOfBoundsException e){
+            return "No creek found";
+        }
     }
 
 }

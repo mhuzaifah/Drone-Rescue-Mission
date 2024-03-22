@@ -23,7 +23,7 @@ public class Map {
     private MapTile toLeft;
     private Integer distLeft;
 
-    public ArrayList<POI> creeks;
+    ArrayList<POI> creeks;
     POI emergencySite;
 
     Map() {
@@ -67,13 +67,13 @@ public class Map {
 
         LogManager.getLogger().info("CHECKING TO UPDATE SITES");
         if(!site.isEmpty())
-            this.emergencySite = new POI(tile, droneCord, site);
+            this.emergencySite = new POI(tile, new MapCoordinate(droneCord.getX(), droneCord.getY()), site);
 
 
         LogManager.getLogger().info("CHECKING TO UPDATE CREEKS");
         if(!creeks.isEmpty()) {
             for (String creek : creeks){
-                this.creeks.add(new POI(tile, droneCord, creek));
+                this.creeks.add(new POI(tile, new MapCoordinate(droneCord.getX(), droneCord.getY()), creek));
                 logger.info("CREEK UPDATED: {}{}", droneCord, creek);
             }
         }

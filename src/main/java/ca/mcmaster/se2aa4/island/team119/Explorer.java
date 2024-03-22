@@ -99,6 +99,9 @@ public class Explorer implements IExplorerRaid {
             logger.info((map.creeks.get(i)).coordinate);
             logger.info((map.creeks.get(i)).id);
         }
+        logger.info("EMERGENCY SITE");
+        logger.info(map.emergencySite.coordinate);
+        logger.info(map.emergencySite.id);
         logger.info(finalReport.getReport());
         return finalReport.getReport();
     }

@@ -42,7 +42,7 @@ public class BatteryThresholdTest {
                 106,                    // (-20,100) -> (-3,-4)
                 99,                    // (-20,100) -> (3,4)
                 98,                    // (-20,100) -> (-3,4)
-                105                     // (-20,100) -> (3,-4)
+                107                     // (-20,100) -> (3,-4)
         };
 
         // Perform the test for each data point

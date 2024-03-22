@@ -10,7 +10,7 @@ public class BatteryThreshold {
         this.startingPoint = startingPoint;
     }
 
-    private int calculateDistance(MapCoordinate point1, MapCoordinate point2) {
+    int calculateDistance(MapCoordinate point1, MapCoordinate point2) {
         int deltaX = Math.abs(point1.getX() - point2.getX());
         int deltaY = Math.abs(point1.getY() - point2.getY());
         return (int) Math.ceil(Math.sqrt((deltaX * deltaX) + (deltaY * deltaY)));

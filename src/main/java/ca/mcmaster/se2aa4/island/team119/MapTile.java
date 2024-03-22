@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.OptionalInt;
 
 public class MapTile  {
-    private Type tileType;
+    Type tileType;
     enum Type {
         LAND,
         OCEAN,
@@ -31,10 +31,10 @@ public class MapTile  {
 
     private Type toTile(String tileType) {
         switch (tileType) {
-            case "GROUND" -> { return Type.LAND; }
             case "OCEAN", "OUT_OF_RANGE" -> { return Type.OCEAN; }
             case "UNKNOWN" -> { return Type.UNKNOWN; }
-            default -> { return Type.OCEAN; }
+            case "LAKE" -> { return Type.LAKE; }
+            default -> { return Type.LAND; }
         }
     }
 
@@ -46,7 +46,6 @@ public class MapTile  {
             else if(biome.equals("LAKE"))
                 return Type.LAKE;
         }
-
         return Type.LAND;
     }
 

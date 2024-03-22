@@ -11,4 +11,8 @@ public enum ResultType {
 
     ResultType() {}
 
+    public String toString() {
+        return "NULL";
+    }
+
 }

@@ -11,5 +11,7 @@ public class MapCoordinate {
     }
 
     public void translate(Integer range, Direction droneHeading) {
+        x++;
+        y++;
     }
 }

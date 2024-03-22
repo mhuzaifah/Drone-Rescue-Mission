@@ -5,13 +5,12 @@ import org.apache.logging.log4j.Logger;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class Response {
+public abstract class Response {
 
     private final Logger logger = LogManager.getLogger();
     private Integer cost;
     private JSONObject extras;
     private String status;
-
     private ResultType type;
 
     Response(JSONObject responseInfo, Operation prevOperation) {
@@ -24,9 +23,6 @@ public class Response {
     }
 
     private void setType(Operation prevOperation) {
-        logger.info("SETTING TYPE");
-        logger.info("PREVIOUS OPERATION {}", prevOperation);
-        logger.info("ACTION OF OPERATION{}", prevOperation.getAction());
         switch (prevOperation.getAction()) {
             case SCAN -> { this.type = ResultType.SCANRESULT; }
             case ECHOFORWARD -> { this.type = ResultType.ECHOFWDRESULT; }
@@ -36,19 +32,17 @@ public class Response {
             case FLYRIGHT -> { this.type = ResultType.FLYRIGHTRESULT; }
             case FLYLEFT -> { this.type = ResultType.FLYLEFTRESULT; }
         }
-        logger.info("DONE SETTING TYPE");
     }
 
     public ResultType getType() {
         return this.type;
     }
 
-
     public Integer getCost() {
         return this.cost;
     }
 
-    public JSONObject getExtras() {
+    protected JSONObject getExtras() {
         return this.extras;
     }
 }

@@ -2,6 +2,7 @@ package ca.mcmaster.se2aa4.island.team119;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
@@ -22,8 +23,8 @@ public class Map {
     private MapTile toLeft;
     private Integer distLeft;
 
-    MapCoordinate[] creeks;
-    MapCoordinate[] emergencySites;
+    ArrayList<POI> creeks;
+    ArrayList<POI> emergencySites;
 
     Map() {
         this.map = new HashMap<MapCoordinate, MapTile>();
@@ -35,79 +36,105 @@ public class Map {
         this.distLeft = null;
     }
 
-    public void update(Response response, Direction droneHeading) {
-        JSONObject extras = response.getExtras();
-        logger.info("UPDATING MAP");
-        switch(response.getType()) {
-            case ECHOFWDRESULT -> {
-                logger.info("JUST DID ECHO FWD");
-                Integer range = extras.getInt("range");
-                logger.info("GOT RANGE {}", range);
-                String found = extras.getString("found");
-                logger.info("GOT FOUND {}", found);
-                logger.info("MAKING MAP TILE IN FRONT");
-                inFront = new MapTile(found);
-                distFront = range;
-                logger.info("MAP TILE IS {}", inFront);
-//                MapCoordinate cord = new MapCoordinate(droneCord.x, droneCord.y);
-//                cord.translate(range, droneHeading);
-//                map.put(cord, inFront);
-            }
-            case ECHOLEFTRESULT -> {
-                Integer range = extras.getInt("range");
-                String found = extras.getString("found");
-                toLeft = new MapTile(found);
-                distLeft = range;
-//                MapCoordinate cord = new MapCoordinate(droneCord.x, droneCord.y);
-//                cord.translate(range, droneHeading);
-//                map.put(cord, toLeft);
-            }
-            case ECHORIGHTRESULT -> {
-                Integer range = extras.getInt("range");
-                String found = extras.getString("found");
-                toRight = new MapTile(found);
-                distRight = range;
-              //  MapCoordinate cord = new MapCoordinate(droneCord.x, droneCord.y);
-              //  cord.translate(range, droneHeading);
-              //  map.put(cord, toRight);
-            }
-            case FLYFWDRESULT -> {
-              //  droneCord.translate(1, droneHeading);
-                this.toRight = new MapTile("UNKNOWN");
-                this.toLeft = new MapTile("UNKNOWN");
-                this.distRight = null;
-                this.distLeft = null;
-            }
-            case FLYRIGHTRESULT -> {
-//                droneCord.translate(1, droneHeading);
-//                droneCord.translate(1, droneHeading.lookLeft());
-                this.inFront = new MapTile("UNKNOWN");
-                this.toRight = new MapTile("UNKNOWN");
-                this.toLeft = new MapTile("UNKNOWN");
-                this.distFront = null;
-                this.distLeft = null;
-                this.distRight = null;
-            }
-            case FLYLEFTRESULT -> {
-//                droneCord.translate(1, droneHeading);
-//                droneCord.translate(1, droneHeading.lookRight());
-                this.inFront = new MapTile("UNKNOWN");
-                this.toRight = new MapTile("UNKNOWN");
-                this.toLeft = new MapTile("UNKNOWN");
-                this.distFront = null;
-                this.distLeft = null;
-                this.distRight = null;
-            }
-            case SCANRESULT -> {
-                map.put(droneCord, new MapTile("OCEAN")); //Temporary, don't currently need to test scanning
-            }
+    public void update(Response response, Direction droneHeading) throws IllegalArgumentException {
+        LogManager.getLogger().info("IN UPDATE MAP");
+        if(response instanceof EchoResponse) {
+            update((EchoResponse) response);
+        }
+        else if(response instanceof ScanResponse) {
+            LogManager.getLogger().info("UPDATING MAP USING SCAN RESPONSE");
+            update((ScanResponse) response);
+        }
+        else if(response instanceof MovementResponse) {
+            LogManager.getLogger().info("UPDATING MAP USING MOVEMENT RESPONSE");
+            update((MovementResponse) response, droneHeading);
+        }
+        else { //Never should get to this else block
+            throw new IllegalArgumentException("Not valid response type.");
         }
     }
 
-    public MapTile inFront() {
-        logger.info("GETTING IN FRONT");
-        return this.inFront;
+    private void update(ScanResponse response) {
+        MapTile tile = new MapTile(response.getBiomes());
+        ArrayList<String> sites = response.getSites();
+        ArrayList<String> creeks = response.getCreeks();
+
+        LogManager.getLogger().info("UPDATING MAP DATA STRUCT");
+        map.put(droneCord, tile);
+
+//        LogManager.getLogger().info("CHECKING TO UPDATE SITES");
+//        if(!sites.isEmpty()) {
+//            for(String site : sites) {
+//                POI sitePOI = new POI(tile, droneCord, site);
+//                this.emergencySites.add(sitePOI);
+//            }
+//        }
+
+//        LogManager.getLogger().info("CHECKING TO UPDATE CREEKS");
+//        if(!creeks.isEmpty()) {
+//            for(String creek : creeks) {
+//                POI creekPOI = new POI(tile, droneCord, creek);
+//                this.creeks.add(creekPOI);
+//            }
+//        }
+
+        LogManager.getLogger().info("DONE UPDATE TO MAP VIA SCAN");
     }
+
+    private void update(EchoResponse response) {
+        Integer range = response.getRange();
+        String found = response.getFound();
+
+        if(response.getType() == ResultType.ECHOFWDRESULT) {
+            inFront = new MapTile(found);
+            distFront = range;
+        }
+        else if(response.getType() == ResultType.ECHOLEFTRESULT) {
+            toLeft = new MapTile(found);
+            distLeft = range;
+        }
+        else if(response.getType() == ResultType.ECHORIGHTRESULT) {
+            toRight = new MapTile(found);
+            distRight = range;
+        }
+
+    }
+
+    private void update(MovementResponse response, Direction droneHeading) {
+        LogManager.getLogger().info("IN MOVEMENT UPDATE FOR MAP");
+        LogManager.getLogger().info("GETTING RESPONSE TYPE");
+        ResultType resultType = response.getType();
+        LogManager.getLogger().info("GOT IT, {}", resultType.toString());
+        if(resultType == ResultType.FLYFWDRESULT) {
+         //   droneCord.translate(1, droneHeading);
+            this.toRight = new MapTile("UNKNOWN");
+            this.toLeft = new MapTile("UNKNOWN");
+            this.distRight = null;
+            this.distLeft = null;
+        }
+        else if(resultType == ResultType.FLYLEFTRESULT) {
+//            droneCord.translate(1, droneHeading);
+//            droneCord.translate(1, droneHeading.lookRight());
+            this.inFront = new MapTile("UNKNOWN");
+            this.toRight = new MapTile("UNKNOWN");
+            this.toLeft = new MapTile("UNKNOWN");
+            this.distFront = null;
+            this.distLeft = null;
+            this.distRight = null;
+        }
+        else if(resultType == ResultType.FLYRIGHTRESULT) {
+//            droneCord.translate(1, droneHeading);
+//            droneCord.translate(1, droneHeading.lookLeft());
+            this.inFront = new MapTile("UNKNOWN");
+            this.toRight = new MapTile("UNKNOWN");
+            this.toLeft = new MapTile("UNKNOWN");
+            this.distFront = null;
+            this.distLeft = null;
+            this.distRight = null;
+        }
+    }
+
+    public MapTile inFront() { return this.inFront; }
 
     public MapTile toLeft() {
         return this.toLeft;
@@ -118,97 +145,16 @@ public class Map {
     }
 
     public Integer getDistFront() {
-        return this.distFront;
+        return this.distFront != null ? this.distFront : -1;
     }
 
     public Integer getDistRight() {
-        return this.distRight;
+        return this.distRight != null ? this.distRight : -1;
     }
 
     public Integer getDistLeft() {
-        return this.distLeft;
+        return this.distLeft != null ? this.distLeft : -1;
     }
 
-//    public boolean isExplored(int[] pos){
-//        for (Position prevPo : prevPos) {
-//            if ((prevPo.getPos(0) == pos[0]) & (prevPo.getPos(1) == pos[1])) {
-//                return true;
-//            }
-//        }
-//        return false;
-//    }
-//
-//    public void setCurrentPos(Position newCurrentPos) {
-//        prevPos.add(currentPos);
-//        currentPos = newCurrentPos;
-//    }
-//
-//    public void findCreek() {}
-
-//    public void turnRight() {
-//        Position pos;
-//        switch(drone.direction){
-//            case EAST ->{
-//                pos = new Position(currentPos.getPos(0)+1, currentPos.getPos(1)+1);
-//            }
-//            case WEST -> {
-//                pos = new Position(currentPos.getPos(0)-1, currentPos.getPos(1)-1);
-//            }
-//            case NORTH -> {
-//                pos = new Position(currentPos.getPos(0)+1, currentPos.getPos(1)-1);
-//            }
-//            case SOUTH -> {
-//                pos = new Position(currentPos.getPos(0)-1, currentPos.getPos(1)+1);
-//            }
-//            default -> {
-//                pos = null;
-//            }
-//        }
-//        this.setCurrentPos(pos);
-//    }
-//
-//    public void turnLeft() {
-//        Position pos;
-//        switch(drone.direction){
-//            case EAST ->{
-//                pos = new Position(currentPos.getPos(0)+1, currentPos.getPos(1)-1);
-//            }
-//            case WEST -> {
-//                pos = new Position(currentPos.getPos(0)-1, currentPos.getPos(1)+1);
-//            }
-//            case NORTH -> {
-//                pos = new Position(currentPos.getPos(0)-1, currentPos.getPos(1)-1);
-//            }
-//            case SOUTH -> {
-//                pos = new Position(currentPos.getPos(0)+1, currentPos.getPos(1)+1);
-//            }
-//            default -> {
-//                pos = null;
-//            }
-//        }
-//        this.setCurrentPos(pos);
-//    }
-//
-//    public void forward() {
-//        Position pos;
-//        switch(drone.direction){
-//            case EAST ->{
-//                pos = new Position(currentPos.getPos(0)+1, currentPos.getPos(1));
-//            }
-//            case WEST -> {
-//                pos = new Position(currentPos.getPos(0)-1, currentPos.getPos(1));
-//            }
-//            case NORTH -> {
-//                pos = new Position(currentPos.getPos(0), currentPos.getPos(1)-1);
-//            }
-//            case SOUTH -> {
-//                pos = new Position(currentPos.getPos(0), currentPos.getPos(1)+1);
-//            }
-//            default -> {
-//                pos = null;
-//            }
-//        }
-//        this.setCurrentPos(pos);
-//    }
 }
 

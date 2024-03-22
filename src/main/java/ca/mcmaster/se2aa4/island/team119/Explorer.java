@@ -12,14 +12,11 @@ import org.json.JSONTokener;
 
 public class Explorer implements IExplorerRaid {
 
-    public final Logger logger = LogManager.getLogger();
-
+    private final Logger logger = LogManager.getLogger();
     private Drone drone;
     private Map map;
     private DecisionMaker decisionMaker;
     private InfoTranslator translator;
-    private ca.mcmaster.se2aa4.island.team119.Response information;
-    private ca.mcmaster.se2aa4.island.team119.Response Response;
 
     //Variables used to execute exploring logic. Will need to be refactored and encapsulated somewhere else eventually
     /*
@@ -27,13 +24,8 @@ public class Explorer implements IExplorerRaid {
         decisionExecuted - Keeps track of the previous decision made by the drone
         intialEchoExecuted - For the first initial echo in order to store the maximum distance that can be travelled
      */
-    public String echoResult = "";
     public String creek = "";
     public boolean creekFound = false;
-    public String site = "";
-    String decisionExecuted = "";
-    int maxDistance = -1;
-    boolean intialEchoExecuted = false;
     int decisioncount = 0;
 
     @Override
@@ -79,8 +71,10 @@ public class Explorer implements IExplorerRaid {
         JSONObject responseInfo = new JSONObject(new JSONTokener(new StringReader(s)));
         logger.info("** Response received:\n"+ responseInfo.toString(2));
 
-        Response response = new Response(responseInfo, decisionMaker.getPrevOperation());
+        Response response = translator.createResponse(responseInfo, decisionMaker.getPrevOperation());
+        LogManager.getLogger().info("UPDATING MAP");
         map.update(response, drone.getHeading());
+        LogManager.getLogger().info("UPDATING DRONE");
         drone.update(response);
 
         logger.info("The battery of the drone is {}", drone.getBattery());

@@ -24,10 +24,11 @@ public class Map {
     private Integer distLeft;
 
     ArrayList<POI> creeks;
-    ArrayList<POI> emergencySites;
+    POI emergencySite;
 
     Map() {
         this.map = new HashMap<MapCoordinate, MapTile>();
+        this.creeks = new ArrayList<POI>();
         this.inFront = new MapTile("UNKNOWN");
         this.toRight = new MapTile("UNKNOWN");
         this.toLeft = new MapTile("UNKNOWN");
@@ -56,27 +57,23 @@ public class Map {
 
     private void update(ScanResponse response) {
         MapTile tile = new MapTile(response.getBiomes());
-        ArrayList<String> sites = response.getSites();
+        String site = response.getSite();
         ArrayList<String> creeks = response.getCreeks();
 
         LogManager.getLogger().info("UPDATING MAP DATA STRUCT");
         map.put(droneCord, tile);
 
-//        LogManager.getLogger().info("CHECKING TO UPDATE SITES");
-//        if(!sites.isEmpty()) {
-//            for(String site : sites) {
-//                POI sitePOI = new POI(tile, droneCord, site);
-//                this.emergencySites.add(sitePOI);
-//            }
-//        }
+        LogManager.getLogger().info("CHECKING TO UPDATE SITES");
+        if(!site.isEmpty())
+            this.emergencySite = new POI(tile, droneCord, site);
 
-//        LogManager.getLogger().info("CHECKING TO UPDATE CREEKS");
-//        if(!creeks.isEmpty()) {
-//            for(String creek : creeks) {
-//                POI creekPOI = new POI(tile, droneCord, creek);
-//                this.creeks.add(creekPOI);
-//            }
-//        }
+
+        LogManager.getLogger().info("CHECKING TO UPDATE CREEKS");
+        if(!creeks.isEmpty()) {
+            for (String creek : creeks)
+                this.creeks.add(new POI(tile, droneCord, creek));
+        }
+
 
         LogManager.getLogger().info("DONE UPDATE TO MAP VIA SCAN");
     }

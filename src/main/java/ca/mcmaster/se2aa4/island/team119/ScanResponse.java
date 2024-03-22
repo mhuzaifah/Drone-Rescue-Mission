@@ -9,13 +9,13 @@ public class ScanResponse extends Response  {
 
     private ArrayList<String> biomes;
     private ArrayList<String> creeks;
-    private ArrayList<String> sites;
+    private String site;
 
     ScanResponse(JSONObject responseInfo, Operation prevOperation) {
         super(responseInfo, prevOperation);
         this.biomes = parseBiomes(super.getExtras().getJSONArray("biomes"));
         this.creeks = parseCreeks(super.getExtras().getJSONArray("creeks"));
-        this.sites = parseSites(super.getExtras().getJSONArray("sites"));
+        this.site = parseSites(super.getExtras().getJSONArray("sites"));
     }
 
     public ArrayList<String> parseBiomes(JSONArray biomesJSONArray) {
@@ -36,13 +36,12 @@ public class ScanResponse extends Response  {
         return creeks;
     }
 
-    public ArrayList<String> parseSites(JSONArray sitesJSONArray) {
-        ArrayList<String> sites = new ArrayList<String>();
-        for(Object siteObj : sitesJSONArray) {
-            sites.add(siteObj.toString());
-        }
+    public String parseSites(JSONArray sitesJSONArray) {
 
-        return sites;
+        if(!sitesJSONArray.isEmpty())
+            return (String) sitesJSONArray.get(0);
+
+        return "";
     }
 
     public ArrayList<String> getBiomes() {
@@ -53,8 +52,8 @@ public class ScanResponse extends Response  {
         return this.creeks;
     }
 
-    public ArrayList<String> getSites() {
-        return this.sites;
+    public String getSite() {
+        return this.site;
     }
 
 }

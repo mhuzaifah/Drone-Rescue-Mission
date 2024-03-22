@@ -23,7 +23,7 @@ public class Map {
     private MapTile toLeft;
     private Integer distLeft;
 
-    ArrayList<POI> creeks;
+    public ArrayList<POI> creeks;
     POI emergencySite;
 
     Map() {
@@ -35,6 +35,7 @@ public class Map {
         this.distFront = null;
         this.distRight = null;
         this.distLeft = null;
+        this.droneCord = new MapCoordinate(0,0);
     }
 
     public void update(Response response, Direction droneHeading) throws IllegalArgumentException {
@@ -44,6 +45,7 @@ public class Map {
         }
         else if(response instanceof ScanResponse) {
             LogManager.getLogger().info("UPDATING MAP USING SCAN RESPONSE");
+            logger.info(droneCord.toString());
             update((ScanResponse) response);
         }
         else if(response instanceof MovementResponse) {
@@ -70,8 +72,10 @@ public class Map {
 
         LogManager.getLogger().info("CHECKING TO UPDATE CREEKS");
         if(!creeks.isEmpty()) {
-            for (String creek : creeks)
+            for (String creek : creeks){
                 this.creeks.add(new POI(tile, droneCord, creek));
+                logger.info("CREEK UPDATED: {}{}", droneCord, creek);
+            }
         }
 
 
@@ -103,15 +107,18 @@ public class Map {
         ResultType resultType = response.getType();
         LogManager.getLogger().info("GOT IT, {}", resultType.toString());
         if(resultType == ResultType.FLYFWDRESULT) {
-         //   droneCord.translate(1, droneHeading);
+            logger.info(droneCord.toString());
+            droneCord.flyFwd(droneHeading);
+            logger.info(droneCord.toString());
             this.toRight = new MapTile("UNKNOWN");
             this.toLeft = new MapTile("UNKNOWN");
             this.distRight = null;
             this.distLeft = null;
         }
         else if(resultType == ResultType.FLYLEFTRESULT) {
-//            droneCord.translate(1, droneHeading);
-//            droneCord.translate(1, droneHeading.lookRight());
+            logger.info(droneCord.toString());
+            droneCord.flyLeft(droneHeading);
+            logger.info(droneCord.toString());
             this.inFront = new MapTile("UNKNOWN");
             this.toRight = new MapTile("UNKNOWN");
             this.toLeft = new MapTile("UNKNOWN");
@@ -120,8 +127,9 @@ public class Map {
             this.distRight = null;
         }
         else if(resultType == ResultType.FLYRIGHTRESULT) {
-//            droneCord.translate(1, droneHeading);
-//            droneCord.translate(1, droneHeading.lookLeft());
+            logger.info(droneCord.toString());
+            droneCord.flyRight(droneHeading);
+            logger.info(droneCord.toString());
             this.inFront = new MapTile("UNKNOWN");
             this.toRight = new MapTile("UNKNOWN");
             this.toLeft = new MapTile("UNKNOWN");
@@ -152,6 +160,10 @@ public class Map {
     public Integer getDistLeft() {
         return this.distLeft != null ? this.distLeft : -1;
     }
+
+    //public POI findClosestCreek() {
+
+    //}
 
 }
 

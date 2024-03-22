@@ -95,6 +95,10 @@ public class Explorer implements IExplorerRaid {
     @Override
     public String deliverFinalReport() {
         FinalReport finalReport = new FinalReport(creekFound, creek);
+        for (int i = 0; i<map.creeks.size(); i++){
+            logger.info((map.creeks.get(i)).coordinate);
+            logger.info((map.creeks.get(i)).id);
+        }
         logger.info(finalReport.getReport());
         return finalReport.getReport();
     }

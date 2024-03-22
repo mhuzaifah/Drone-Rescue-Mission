@@ -22,58 +22,55 @@ public class MapCoordinate {
         return "(" + x + ", " + y + ")";
     }
 
-    public void flyFwd(Integer distance, Direction droneHeading) {
+    public void flyFwd(Direction droneHeading) {
         switch(droneHeading){
-            case NORTH -> y -= distance;
-            case SOUTH -> y += distance;
-            case EAST -> x -= distance;
-            case WEST -> x += distance;
-            default -> throw new IllegalArgumentException("Invalid direction " + droneHeading);
+            case NORTH -> y--;
+            case SOUTH -> y++;
+            case EAST -> x--;
+            case WEST -> x++;
         }
     }
 
-    public void flyLeft(Integer distance, Direction droneHeading) {
+
+    public void flyLeft(Direction droneHeading) {
         switch(droneHeading){
             case NORTH -> {
-                y -= distance;
-                x += distance;
-            }
-            case EAST -> {
-                x -= distance;
-                y -= distance;
+                x++;
+                y--;
             }
             case SOUTH -> {
-                y += distance;
-                x -= distance;
+                x--;
+                y++;
+            }
+            case EAST -> {
+                x--;
+                y--;
             }
             case WEST -> {
-                x += distance;
-                y += distance;
+                x++;
+                y++;
             }
-            default -> throw new IllegalStateException("Invalid direction");
         }
     }
 
-    public void flyRight(Integer distance, Direction droneHeading) {
+    public void flyRight(Direction droneHeading) {
         switch(droneHeading){
             case NORTH -> {
-                y -= distance;
-                x -= distance;
-            }
-            case EAST -> {
-                x -= distance;
-                y += distance;
+                x--;
+                y--;
             }
             case SOUTH -> {
-                y += distance;
-                x += distance;
+                x++;
+                y++;
+            }
+            case EAST -> {
+                x--;
+                y++;
             }
             case WEST -> {
-                x += distance;
-                y -= distance;
+                x++;
+                y--;
             }
-            default -> throw new IllegalStateException("Invalid direction");
-
         }
     }
 }

@@ -1,7 +1,5 @@
 package ca.mcmaster.se2aa4.island.team119;
 
-import eu.ace_design.island.game.actions.Heading;
-
 public enum InfoType {
 
     HEADING("heading"),

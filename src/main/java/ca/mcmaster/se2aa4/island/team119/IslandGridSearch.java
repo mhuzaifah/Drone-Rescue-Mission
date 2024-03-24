@@ -1,10 +1,7 @@
 package ca.mcmaster.se2aa4.island.team119;
 
-import org.apache.logging.log4j.LogManager;
-
 import java.util.ArrayDeque;
 import java.util.Queue;
-import java.util.logging.Logger;
 
 public class IslandGridSearch implements SearchState, SearchAlgo {
 

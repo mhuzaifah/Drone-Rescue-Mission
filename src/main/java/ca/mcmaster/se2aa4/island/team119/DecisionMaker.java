@@ -1,6 +1,5 @@
 package ca.mcmaster.se2aa4.island.team119;
 
-import org.apache.logging.log4j.LogManager;
 import org.json.JSONObject;
 
 public class DecisionMaker {
@@ -24,8 +23,6 @@ public class DecisionMaker {
         decision = currState.handle();
         prevDecision = decision;
 
-        LogManager.getLogger().info("CHECKING CURRENT MAIN STATE");
-        LogManager.getLogger().info("{}", currState.getName());
         switch (currState.getName()) {
             case FINDISLAND  -> {
                 if(currState.isFinished()) {
@@ -39,7 +36,6 @@ public class DecisionMaker {
             }
             default -> {}
         }
-        LogManager.getLogger().info("AFTER CHECK -> {}", currState.getName());
 
         switch (this.decision.getAction()) {
             case SCAN -> {

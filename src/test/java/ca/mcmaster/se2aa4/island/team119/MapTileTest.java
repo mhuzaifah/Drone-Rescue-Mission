@@ -2,8 +2,6 @@ package ca.mcmaster.se2aa4.island.team119;
 
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-
 import java.util.ArrayList;
 
 public class MapTileTest {

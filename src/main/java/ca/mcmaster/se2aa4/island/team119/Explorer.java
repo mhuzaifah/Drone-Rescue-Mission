@@ -17,15 +17,6 @@ public class Explorer implements IExplorerRaid {
     private Map map;
     private DecisionMaker decisionMaker;
     private InfoTranslator translator;
-
-    //Variables used to execute exploring logic. Will need to be refactored and encapsulated somewhere else eventually
-    /*
-        echoResult - Keeps track of whether echo returned ground or OUT_OF_RANGE
-        decisionExecuted - Keeps track of the previous decision made by the drone
-        intialEchoExecuted - For the first initial echo in order to store the maximum distance that can be travelled
-     */
-    public String creek = "";
-    public boolean creekFound = false;
     int decisioncount = 0;
 
     @Override
@@ -43,6 +34,7 @@ public class Explorer implements IExplorerRaid {
 
     @Override
     public String takeDecision() {
+        // refactor to use battery threshold
         if(drone.getBattery() > 100) {
             try {
                 decisioncount++;
@@ -72,23 +64,10 @@ public class Explorer implements IExplorerRaid {
         logger.info("** Response received:\n"+ responseInfo.toString(2));
 
         Response response = translator.createResponse(responseInfo, decisionMaker.getPrevOperation());
-        LogManager.getLogger().info("UPDATING MAP");
         map.update(response, drone.getHeading());
-        LogManager.getLogger().info("UPDATING DRONE");
         drone.update(response);
 
         logger.info("The battery of the drone is {}", drone.getBattery());
-
-        try{
-            creek = response.getExtras().getJSONArray("creeks").getString(0);
-        }
-        catch(Exception ignored){
-        }
-
-        if (!Objects.equals(creek, "")){
-            creekFound = true;
-        }
-
         logger.info("Additional information received: {}", response.getExtras());
     }
 

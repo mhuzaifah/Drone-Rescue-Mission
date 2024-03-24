@@ -1,13 +1,9 @@
 package ca.mcmaster.se2aa4.island.team119;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 public abstract class Response {
 
-    private final Logger logger = LogManager.getLogger();
     private Integer cost;
     private JSONObject extras;
     private String status;

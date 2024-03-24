@@ -1,12 +1,6 @@
 package ca.mcmaster.se2aa4.island.team119;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.json.JSONArray;
-import org.json.JSONObject;
-
 import java.util.ArrayList;
-import java.util.OptionalInt;
 
 public class MapTile  {
     Type tileType;

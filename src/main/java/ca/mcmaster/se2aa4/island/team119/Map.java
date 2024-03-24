@@ -21,8 +21,8 @@ public class Map {
     private Integer distRight;
     private MapTile toLeft;
     private Integer distLeft;
-    ArrayList<POI> creeks;
-    POI emergencySite;
+    private ArrayList<POI> creeks;
+    private POI emergencySite;
     private Direction startingEdge;
 
     Map() {
@@ -191,5 +191,19 @@ public class Map {
 
     public MapCoordinate getDronePosition() {
         return this.droneCord;
+    }
+
+    public ArrayList<POI> getCreeks() {
+        ArrayList<POI> creeks = this.creeks;
+        return this.creeks;
+    }
+
+    public POI getEmergencySite() {
+        return this.emergencySite;
+    }
+
+    public void setEmergencySite(POI site) {
+        if(this.emergencySite == null)
+            this.emergencySite = site;
     }
 }

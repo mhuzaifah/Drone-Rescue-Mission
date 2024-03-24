@@ -8,21 +8,21 @@ import java.util.ArrayList;
 
 public class MapTileTest {
 
-//    @Test
-//    void testSameTileType() {
-//        MapTile tile1 = new MapTile("OCEAN");
-//        MapTile tile2 = new MapTile("OCEAN");
-//        MapTile tile3 = new MapTile("LAKE");
-//        MapTile tile4 = new MapTile("LAND");
-//        MapTile tile5 = new MapTile("UNKNOWN");
-//
-//        // Test if tiles of the same type are considered the same
-//        assertEquals(true, tile1.sameTileType(tile2));
-//        // Test if tiles of different types are not considered the same
-//        assertEquals(false, tile1.sameTileType(tile3));
-//        // Test if tiles of different types that seem to be the same in the end are not considered the same
-//        assertEquals(false, tile4.sameTileType(tile5));
-//    }
+    @Test
+    void testSameTileType() {
+        MapTile tile1 = new MapTile("OCEAN");
+        MapTile tile2 = new MapTile("OCEAN");
+        MapTile tile3 = new MapTile("LAKE");
+        MapTile tile4 = new MapTile("GROUND");
+        MapTile tile5 = new MapTile("UNKNOWN");
+
+        // Test if tiles of the same type are considered the same
+        assertEquals(true, tile1.sameTileType(tile2));
+        // Test if tiles of different types are not considered the same
+        assertEquals(false, tile1.sameTileType(tile3));
+        // Test if tiles of different types that seem to be the same in the end are not considered the same
+        assertEquals(false, tile4.sameTileType(tile5));
+    }
 
     @Test
     void testToTileWithString() {

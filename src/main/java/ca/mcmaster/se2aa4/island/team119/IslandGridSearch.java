@@ -91,7 +91,8 @@ public class IslandGridSearch implements SearchState, SearchAlgo {
 
     private void moveForwardInExploration() {
         Integer distInFront = decisionMaker.getMap().getDistFront();
-        if(distInFront == 0) {
+        MapTile tileInFront = decisionMaker.getMap().inFront();
+        if(distInFront == 0 && tileInFront.sameTileType(new MapTile("GROUND"))) {
            flyFwdAndScan(1);
         }
         else {
@@ -125,22 +126,6 @@ public class IslandGridSearch implements SearchState, SearchAlgo {
             executeTurn(turn);
             operations.add(new Operation(Action.ECHOFORWARD));
         }
-
-//        if(distance != 1 && tileToEchoSide.sameTileType(new MapTile("GROUND"))) {
-//            operations.add(new Operation(Action.FLYFORWARD));
-//            operations.add(echoForTurn);
-//        }
-//        else {
-//            if(!checkedTurnEdgeCase) {
-//                operations.add(new Operation(Action.FLYFORWARD));
-//                operations.add(echoForTurn);
-//                checkedTurnEdgeCase = true;
-//            }
-//            else {
-//                executeTurn(turn);
-//                operations.add(new Operation(Action.ECHOFORWARD));
-//            }
-//        }
     }
 
     private void returnExplorationOrLoopBack() {
@@ -258,7 +243,6 @@ public class IslandGridSearch implements SearchState, SearchAlgo {
     private void executeTurn(Operation turnDirection) {
         operations.add(turnDirection);
         operations.add(turnDirection);
-        operations.add(new Operation(Action.SCAN));
     }
 
     private void flyFwdAndScan(int times) {

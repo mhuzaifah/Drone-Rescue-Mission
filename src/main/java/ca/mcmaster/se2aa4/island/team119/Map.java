@@ -1,3 +1,9 @@
+// Muhammad Huzaifa, Anam Khan, Haniya Kashif
+// date: 24/03/2024
+// TA: Eshaan Chaudhari
+// Map
+// holds all info about map and updates the map
+
 package ca.mcmaster.se2aa4.island.team119;
 
 import java.util.ArrayList;

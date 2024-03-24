@@ -1,3 +1,9 @@
+// Muhammad Huzaifa, Anam Khan, Haniya Kashif
+// date: 24/03/2024
+// TA: Eshaan Chaudhari
+// FinalReport
+// generates final report to be returned in Explorer
+
 package ca.mcmaster.se2aa4.island.team119;
 
 public class FinalReport {

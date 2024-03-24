@@ -1,3 +1,9 @@
+// Muhammad Huzaifa, Anam Khan, Haniya Kashif
+// date: 24/03/2024
+// TA: Eshaan Chaudhari
+// InfoTranslator
+// creates Response objects using response info
+
 package ca.mcmaster.se2aa4.island.team119;
 
 import org.json.JSONObject;

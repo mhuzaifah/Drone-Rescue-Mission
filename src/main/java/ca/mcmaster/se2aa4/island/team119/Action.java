@@ -1,7 +1,10 @@
+// Muhammad Huzaifa, Anam Khan, Haniya Kashif
+// date: 24/03/2024
+// TA: Eshaan Chaudhari
+// Action
+// enum of the drone's possible actions
 package ca.mcmaster.se2aa4.island.team119;
 
-
-// enum of the drone's possible actions
 public enum Action {
 
     SCAN("scan"),

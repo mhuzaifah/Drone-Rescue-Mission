@@ -2,16 +2,10 @@ package ca.mcmaster.se2aa4.island.team119;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.json.JSONArray;
-import org.json.JSONObject;
-
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 
 public class Map {
-
-    private final Logger logger = LogManager.getLogger();
 
     private HashMap<MapCoordinate, MapTile> map;
     private MapCoordinate droneCord;
@@ -39,17 +33,13 @@ public class Map {
     }
 
     public void update(Response response, Direction droneHeading) throws IllegalArgumentException {
-        LogManager.getLogger().info("IN UPDATE MAP");
         if(response instanceof EchoResponse) {
             update((EchoResponse) response);
         }
         else if(response instanceof ScanResponse) {
-            LogManager.getLogger().info("UPDATING MAP USING SCAN RESPONSE");
-            logger.info(droneCord.toString());
             update((ScanResponse) response);
         }
         else if(response instanceof MovementResponse) {
-            LogManager.getLogger().info("UPDATING MAP USING MOVEMENT RESPONSE");
             update((MovementResponse) response, droneHeading);
         }
         else { //Never should get to this else block
@@ -62,24 +52,17 @@ public class Map {
         String site = response.getSite();
         ArrayList<String> creeks = response.getCreeks();
 
-        LogManager.getLogger().info("UPDATING MAP DATA STRUCT");
         map.put(droneCord, tile);
 
-        LogManager.getLogger().info("CHECKING TO UPDATE SITES");
-        if(!site.isEmpty())
+        if(!site.isEmpty()) {
             this.emergencySite = new POI(tile, new MapCoordinate(droneCord.getX(), droneCord.getY()), site);
+        }
 
-
-        LogManager.getLogger().info("CHECKING TO UPDATE CREEKS");
         if(!creeks.isEmpty()) {
             for (String creek : creeks){
                 this.creeks.add(new POI(tile, new MapCoordinate(droneCord.getX(), droneCord.getY()), creek));
-                logger.info("CREEK UPDATED: {}{}", droneCord, creek);
             }
         }
-
-
-        LogManager.getLogger().info("DONE UPDATE TO MAP VIA SCAN");
     }
 
     private void update(EchoResponse response) {
@@ -102,23 +85,16 @@ public class Map {
     }
 
     private void update(MovementResponse response, Direction droneHeading) {
-        LogManager.getLogger().info("IN MOVEMENT UPDATE FOR MAP");
-        LogManager.getLogger().info("GETTING RESPONSE TYPE");
         ResultType resultType = response.getType();
-        LogManager.getLogger().info("GOT IT, {}", resultType.toString());
         if(resultType == ResultType.FLYFWDRESULT) {
-            logger.info(droneCord.toString());
             droneCord.flyFwd(droneHeading);
-            logger.info(droneCord.toString());
             this.toRight = new MapTile("UNKNOWN");
             this.toLeft = new MapTile("UNKNOWN");
             this.distRight = null;
             this.distLeft = null;
         }
         else if(resultType == ResultType.FLYLEFTRESULT) {
-            logger.info(droneCord.toString());
             droneCord.flyLeft(droneHeading);
-            logger.info(droneCord.toString());
             this.inFront = new MapTile("UNKNOWN");
             this.toRight = new MapTile("UNKNOWN");
             this.toLeft = new MapTile("UNKNOWN");
@@ -127,9 +103,7 @@ public class Map {
             this.distRight = null;
         }
         else if(resultType == ResultType.FLYRIGHTRESULT) {
-            logger.info(droneCord.toString());
             droneCord.flyRight(droneHeading);
-            logger.info(droneCord.toString());
             this.inFront = new MapTile("UNKNOWN");
             this.toRight = new MapTile("UNKNOWN");
             this.toLeft = new MapTile("UNKNOWN");
@@ -193,4 +167,5 @@ public class Map {
     public Direction getStartingEdge() {
         return this.startingEdge;
     }
+
 }

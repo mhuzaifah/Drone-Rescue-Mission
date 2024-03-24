@@ -10,6 +10,7 @@ import java.util.ArrayList;
 
 public class MapTile  {
     Type tileType;
+
     enum Type {
         LAND,
         OCEAN,
@@ -62,6 +63,10 @@ public class MapTile  {
                 return Type.LAKE;
         }
         return Type.LAND;
+    }
+
+    public Type getTileType() {
+        return this.tileType;
     }
 
 }

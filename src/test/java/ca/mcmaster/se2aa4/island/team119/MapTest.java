@@ -86,7 +86,7 @@ public class MapTest {
     }
 
     @Test
-    public void testUpdateScanEmergencySiteFound() {
+    public void testUpdateScanSiteFound() {
         JSONObject extras = new JSONObject();
 
         extras.put("creeks", new JSONArray());

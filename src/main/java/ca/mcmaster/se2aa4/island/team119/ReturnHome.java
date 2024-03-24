@@ -1,7 +1,5 @@
 package ca.mcmaster.se2aa4.island.team119;
 
-import org.json.JSONObject;
-
 public class ReturnHome implements SearchState{
 
     ReturnHome(){}
@@ -12,9 +10,7 @@ public class ReturnHome implements SearchState{
     }
 
     @Override
-    public void transition() {
-
-    }
+    public void transition() {}
 
     @Override
     public Boolean isFinished() {

@@ -28,4 +28,18 @@ public enum Action {
         return this.abreviation;
     }
 
+    public Action oppositeAction() {
+        Action oppositeAction = null;
+        switch (this) {
+            case SCAN -> { oppositeAction = SCAN; }
+            case ECHOFORWARD -> { oppositeAction = ECHOFORWARD; }
+            case ECHORIGHT -> { oppositeAction = ECHOLEFT; }
+            case ECHOLEFT -> { oppositeAction = ECHORIGHT; }
+            case FLYFORWARD -> { oppositeAction = FLYFORWARD; }
+            case FLYRIGHT -> { oppositeAction = FLYLEFT; }
+            case FLYLEFT -> { oppositeAction = FLYRIGHT; }
+            case STOP -> { oppositeAction = STOP; }
+        }
+        return oppositeAction;
+    }
 }

@@ -15,12 +15,16 @@ public class IslandGridSearch implements SearchState, SearchAlgo {
     enum SubState {
         EXPLORE,
         TURN,
-        ADJUST
+        GETBACKTOISLAND,
+        LOOPBACKSETUP,
+        LOOPBACKODDCASE,
+        LOOPBACKEVENCASE
     }
     private Queue<Operation> operations;
     private Operation turn;
     private Operation echoForTurn;
-    private Boolean loopedBack = false;
+    private Boolean checkedTurnEdgeCase = false;
+    private Boolean loopingBack = false;
 
     IslandGridSearch(DecisionMaker decisionMaker) {
         this.decisionMaker = decisionMaker;
@@ -30,40 +34,16 @@ public class IslandGridSearch implements SearchState, SearchAlgo {
         operations.add(new Operation(Action.ECHOFORWARD));
     }
 
-    private void setDirectionOfInterest() {
-        Direction droneHeading = decisionMaker.getDrone().getHeading();
-
-        //NEED TO CHANGE BASED OFF STARTING CORDS
-        //VARIES DEPENDING ON WHICH CYCLE YOU'RE ON
-        if(droneHeading == Direction.SOUTH || droneHeading == Direction.EAST) {
-            turn = new Operation(loopedBack ? Action.FLYLEFT : Action.FLYRIGHT);
-            echoForTurn = new Operation(loopedBack ? Action.ECHOLEFT : Action.ECHORIGHT);
-        }
-        else {
-            turn = new Operation(loopedBack ? Action.FLYRIGHT : Action.FLYLEFT);
-            echoForTurn = new Operation(loopedBack ? Action.ECHORIGHT : Action.ECHOLEFT);
-        }
-    }
-
     @Override
     public Operation handle() {
-
-        LogManager.getLogger().info("CURRENT SUBSTATE {}", currSubState.toString());
-        switch (currSubState) {
-            case EXPLORE, TURN, ADJUST -> {
-                transition();
-                return operations.remove();
-            }
-            default -> {
-                return null;
-            }
-        }
-
+        return search();
     }
 
     @Override
     public Operation search() {
-        return null;
+        setDirectionOfInterest();
+        transition();
+        return operations.remove();
     }
 
     @Override
@@ -71,108 +51,228 @@ public class IslandGridSearch implements SearchState, SearchAlgo {
         setDirectionOfInterest();
         switch (currSubState) {
             case EXPLORE -> {
-                if(decisionMaker.getPrevOperation().isEchoFwd()) {
-                    if (decisionMaker.getMap().inFront().sameTileType(new MapTile("OCEAN"))) {
-                        LogManager.getLogger().info("OCEAN IN FRONT SO TURNING");
-                        operations.add(new Operation(Action.FLYFORWARD));
-                        operations.add(new Operation(Action.SCAN));
-                        currSubState = SubState.TURN;
-                        setDirectionOfInterest();
-                        operations.add(echoForTurn);
-                    }
-                    else {
-                        LogManager.getLogger().info("NO OCEAN IN FRONT, INSTEAD {}", decisionMaker.getMap().inFront().toString());
-                        Integer distInFront = decisionMaker.getMap().getDistFront();
-                        LogManager.getLogger().info("DIST INFRONT IS {}", distInFront);
-                        if (distInFront == 0) {
-                            LogManager.getLogger().info("FLYING, SCANNING");
-                            operations.add(new Operation(Action.FLYFORWARD));
-                            operations.add(new Operation(Action.SCAN));
-                        } else {
-                            LogManager.getLogger().info("JUST FLYING TO NEXT LAND");
-                            for(int i=0; i < distInFront; i++)
-                                operations.add(new Operation(Action.FLYFORWARD));
-                        }
-                        LogManager.getLogger().info("ECHOING");
-                        operations.add(new Operation(Action.ECHOFORWARD));
-                    }
-                }
+                explore();
             }
             case TURN -> {
-                Operation prevOperation = decisionMaker.getPrevOperation();
-                if(prevOperation.isEchoRight() || prevOperation.isEchoLeft()) {
-                    Integer distance = prevOperation.isEchoRight() ? decisionMaker.getMap().getDistRight() : decisionMaker.getMap().getDistLeft();
-                    if (distance > 1) {
-                        operations.add(turn);
-                        operations.add(turn);
-                        operations.add(new Operation(Action.ECHOFORWARD));
-                    }
-                    else {
-                        operations.add(new Operation(Action.FLYFORWARD));
-                        operations.add(echoForTurn);
-                    }
-                }
-                else if(prevOperation.isEchoFwd()) {
-                    LogManager.getLogger().info("CHECKING ECHO FORWARD RESULT TO SEE IF WE SHOULD ADJUST OR NOT");
-                    if(decisionMaker.getMap().inFront().sameTileType(new MapTile("OCEAN"))) {
-                        LogManager.getLogger().info("LOOPED BACK {}", loopedBack);
-                        if(!loopedBack) {
-                            LogManager.getLogger().info("GOING TO ADJUST", loopedBack);
-                            currSubState = SubState.ADJUST;
-                            operations.add(new Operation(Action.ECHORIGHT));
-                            operations.add(new Operation(Action.ECHOLEFT));
-                        }
-                        else
-                            operations.add(new Operation(Action.STOP));
-                    }
-                    else {
-                        currSubState = SubState.EXPLORE;
-                        operations.add(new Operation(Action.ECHOFORWARD));
-                    }
-                }
+                turn();
             }
-            case ADJUST -> {
-                if(decisionMaker.getPrevOperation().isEchoLeft()) {
-                    Integer dist;
-                    Operation turn;
-                    if(decisionMaker.getMap().toRight().sameTileType(new MapTile("GROUND"))) {
-                        dist = decisionMaker.getMap().getDistRight();
-                        turn = new Operation(Action.FLYRIGHT);
-                        LogManager.getLogger().info("DISTANCE RIGHT {}", dist);
-                    }
-                    else {
-                        dist = decisionMaker.getMap().getDistLeft();
-                        turn = new Operation(Action.FLYLEFT);
-                        LogManager.getLogger().info("DISTANCE LEFT {}", dist);
-                    }
-
-                    //Getting drone in correct position
-                    operations.add(turn);
-                    if(dist == 0) {
-                        operations.add(new Operation(Action.FLYFORWARD));
-                    }
-                    else {
-                        operations.add(new Operation(Action.FLYFORWARD));
-//                        operations.add(new Operation(Action.FLYFORWARD));
-//                        operations.add(new Operation(Action.FLYFORWARD));
-                    }
-                    operations.add(turn);
-                    operations.add(turn);
-                    operations.add(turn);
-
-                    operations.add(new Operation(Action.SCAN));
-                }
-                else if(decisionMaker.getPrevOperation().isScan()) {
-                    LogManager.getLogger().info("SETTING BACK TO EXPLORE AFTER ADJUSTING");
-                    currSubState = SubState.EXPLORE;
-                    loopedBack = true;
-                    setDirectionOfInterest();
-                    LogManager.getLogger().info("LOOPED BACK IS {}", loopedBack);
-                    operations.add(new Operation(Action.ECHOFORWARD));
-                    LogManager.getLogger().info("SIZE {}", operations.size());
-                }
+            case GETBACKTOISLAND -> {
+                getBackToIsland();
+            }
+            case LOOPBACKSETUP -> {
+                loopBackSetup();
+            }
+            case LOOPBACKODDCASE -> {
+                loopBackOddCase();
+            }
+            case LOOPBACKEVENCASE -> {
+                loopBackEvenCase();
             }
         }
+    }
+
+    private void explore() {
+        if(decisionMaker.getPrevOperation().isEchoFwd()) {
+            if (decisionMaker.getMap().inFront().sameTileType(new MapTile("OCEAN"))) {
+                getReadyForTurn();
+            }
+            else {
+                moveForwardInExploration();
+            }
+        }
+    }
+
+    private void getReadyForTurn() {
+        if(decisionMaker.getMap().getDistFront() > 2)
+            flyFwdAndScan(2);
+        currSubState = SubState.TURN;
+        operations.add(echoForTurn);
+    }
+
+    private void moveForwardInExploration() {
+        Integer distInFront = decisionMaker.getMap().getDistFront();
+        if(distInFront == 0) {
+           flyFwdAndScan(1);
+        }
+        else {
+            flyFwdAndScan(1);
+            for(int i=1; i <= distInFront-2; i++)
+                operations.add(new Operation(Action.FLYFORWARD));
+            flyFwdAndScan(1);
+        }
+        operations.add(new Operation(Action.ECHOFORWARD));
+    }
+
+    private void turn() {
+        Operation prevOperation = decisionMaker.getPrevOperation();
+        if(prevOperation.isEchoRight() || prevOperation.isEchoLeft()) {
+            turnAtCorrectTime();
+        }
+        else if(prevOperation.isEchoFwd()) {
+            returnExplorationOrLoopBack();
+        }
+    }
+
+    private void turnAtCorrectTime() {
+        Operation prevOperation = decisionMaker.getPrevOperation();
+        Integer distance = prevOperation.isEchoRight() ? decisionMaker.getMap().getDistRight() : decisionMaker.getMap().getDistLeft();
+        MapTile tileToEchoSide = prevOperation.isEchoRight() ? decisionMaker.getMap().toRight() : decisionMaker.getMap().toLeft();
+        if (distance == 0) {
+            operations.add(new Operation(Action.FLYFORWARD));
+            operations.add(echoForTurn);
+        }
+        else {
+            executeTurn(turn);
+            operations.add(new Operation(Action.ECHOFORWARD));
+        }
+
+//        if(distance != 1 && tileToEchoSide.sameTileType(new MapTile("GROUND"))) {
+//            operations.add(new Operation(Action.FLYFORWARD));
+//            operations.add(echoForTurn);
+//        }
+//        else {
+//            if(!checkedTurnEdgeCase) {
+//                operations.add(new Operation(Action.FLYFORWARD));
+//                operations.add(echoForTurn);
+//                checkedTurnEdgeCase = true;
+//            }
+//            else {
+//                executeTurn(turn);
+//                operations.add(new Operation(Action.ECHOFORWARD));
+//            }
+//        }
+    }
+
+    private void returnExplorationOrLoopBack() {
+        if(decisionMaker.getMap().inFront().sameTileType(new MapTile("OCEAN"))) {
+            if(!loopingBack) {
+                currSubState = SubState.LOOPBACKSETUP;
+                loopingBack = true;
+                setDirectionOfInterest();
+                operations.add(echoForTurn);
+            }
+            else
+                operations.add(new Operation(Action.STOP));
+        }
+        else {
+            currSubState = SubState.GETBACKTOISLAND;
+            operations.add(new Operation(Action.ECHOFORWARD));
+        }
+    }
+
+    private void getBackToIsland() {
+        if(decisionMaker.getPrevOperation().isEchoFwd()) {
+            Integer distInFront = decisionMaker.getMap().getDistFront();
+            for (int i = 0; i < distInFront - 1; i++) {
+                operations.add(new Operation(Action.FLYFORWARD));
+            }
+            operations.add(new Operation(Action.SCAN));
+            operations.add(new Operation(Action.ECHOFORWARD));
+            currSubState = SubState.EXPLORE;
+        }
+    }
+
+    private void loopBackSetup() {
+        if (decisionMaker.getPrevOperation().isEcho()) {
+            Integer dist = decisionMaker.getPrevOperation().isEchoLeft() ? decisionMaker.getMap().getDistLeft() : decisionMaker.getMap().getDistRight();
+
+            if (dist == 0) {
+                moveSideways(1);
+                currSubState = SubState.LOOPBACKODDCASE;
+            } else if (dist == 1) {
+                moveSideways(1);
+                operations.add(new Operation(Action.ECHOFORWARD));
+                currSubState = SubState.LOOPBACKEVENCASE;
+            } else {
+                operations.add(new Operation(Action.FLYFORWARD));
+                operations.add(echoForTurn);
+            }
+        }
+    }
+
+    private void loopBackOddCase() {
+        operations.add(new Operation(Action.SCAN));
+        operations.add(new Operation(Action.ECHOFORWARD));
+        currSubState = SubState.EXPLORE;
+    }
+
+    private void loopBackEvenCase() {
+        if (decisionMaker.getPrevOperation().isEchoFwd()) {
+            MapTile tileInFront = decisionMaker.getMap().inFront();
+
+            if (!tileInFront.sameTileType(new MapTile("GROUND")))
+                moveSideways(2);
+
+            operations.add(new Operation(Action.SCAN));
+            operations.add(new Operation(Action.ECHOFORWARD));
+            currSubState = SubState.EXPLORE;
+        }
+    }
+
+    private void setDirectionOfInterest() {
+        Direction droneHeading = decisionMaker.getDrone().getHeading();
+        Direction startingEdge = decisionMaker.getMap().getStartingEdge();
+
+        if(startingEdge.isNorth()) {
+            if(droneHeading.isEast()) {
+                turn = new Operation(!loopingBack ? Action.FLYRIGHT : Action.FLYLEFT);
+                echoForTurn = new Operation(!loopingBack ? Action.ECHORIGHT : Action.ECHOLEFT);
+            }
+            else if(droneHeading.isWest()) {
+                turn = new Operation(!loopingBack ? Action.FLYLEFT : Action.FLYRIGHT);
+                echoForTurn = new Operation(!loopingBack ? Action.ECHOLEFT : Action.ECHORIGHT);
+            }
+        }
+        else if(startingEdge.isEast()) {
+            if(droneHeading.isNorth()) {
+                turn = new Operation(!loopingBack ? Action.FLYLEFT : Action.FLYRIGHT);
+                echoForTurn = new Operation(!loopingBack ? Action.ECHOLEFT : Action.ECHORIGHT);
+            }
+            else if(droneHeading.isSouth()) {
+                turn = new Operation(!loopingBack ? Action.FLYRIGHT : Action.FLYLEFT);
+                echoForTurn = new Operation(!loopingBack ? Action.ECHORIGHT : Action.ECHOLEFT);
+            }
+        }
+        else if(startingEdge.isSouth()) {
+            if(droneHeading.isEast()) {
+                turn = new Operation(!loopingBack ? Action.FLYLEFT : Action.FLYRIGHT);
+                echoForTurn = new Operation(!loopingBack ? Action.ECHOLEFT : Action.ECHORIGHT);
+            }
+            else if(droneHeading.isWest()) {
+                turn = new Operation(!loopingBack ? Action.FLYRIGHT : Action.FLYLEFT);
+                echoForTurn = new Operation(!loopingBack ? Action.ECHORIGHT : Action.ECHOLEFT);
+            }
+        }
+        else { // startingEdge.isWest()
+            if(droneHeading.isNorth()) {
+                turn = new Operation(!loopingBack ? Action.FLYRIGHT : Action.FLYLEFT);
+                echoForTurn = new Operation(!loopingBack ? Action.ECHORIGHT : Action.ECHOLEFT);
+            }
+            else if(droneHeading.isSouth()) {
+                turn = new Operation(!loopingBack ? Action.FLYLEFT : Action.FLYRIGHT);
+                echoForTurn = new Operation(!loopingBack ? Action.ECHOLEFT : Action.ECHORIGHT);
+            }
+        }
+    }
+
+    private void executeTurn(Operation turnDirection) {
+        operations.add(turnDirection);
+        operations.add(turnDirection);
+        operations.add(new Operation(Action.SCAN));
+    }
+
+    private void flyFwdAndScan(int times) {
+        operations.add(new Operation(Action.FLYFORWARD));
+        operations.add(new Operation(Action.SCAN));
+    }
+
+    private void moveSideways(int spaces) {
+        operations.add(turn);
+        for(int i=0; i < spaces; i++)
+            operations.add(new Operation(Action.FLYFORWARD));
+        operations.add(turn);
+        operations.add(turn);
+        operations.add(turn);
     }
 
     @Override

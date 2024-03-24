@@ -14,9 +14,8 @@ public class FindIsland implements SearchState {
     private SubState currSubState;
     private final State stateName = State.FINDISLAND;
     private Boolean finished = false;
-    private Boolean islandInFront;
-    private Integer distanceRight;
-    private Integer distanceLeft;
+    private Boolean islandInitInFront;
+    private Boolean updatedExtremaOperations = false;
     private Action echoForExtremas;
     private Action turnForExtremas;
     private Queue<Operation> operations;
@@ -37,73 +36,16 @@ public class FindIsland implements SearchState {
     public Operation handle() {
         switch (currSubState) {
             case CHECKSURROUNDINGS -> {
-                if(decisionMaker.getPrevOperation() == null)
-                    return new Operation(Action.ECHORIGHT);
-                else if (decisionMaker.getPrevOperation().isEchoRight())
-                    return new Operation(Action.ECHOLEFT);
-                else if (decisionMaker.getPrevOperation().isEchoLeft()) {
-                    return new Operation(Action.ECHOFORWARD);
-                }
-                else {
-                    transition();
-                    if (islandInFront) {
-                        if (decisionMaker.getMap().getDistLeft() <= decisionMaker.getMap().getDistRight()) {
-                            echoForExtremas = Action.ECHORIGHT;
-                            turnForExtremas = Action.FLYRIGHT;
-                            return new Operation(Action.FLYLEFT);
-                        } else {
-                            echoForExtremas = Action.ECHOLEFT;
-                            turnForExtremas = Action.FLYLEFT;
-                            return new Operation(Action.FLYRIGHT);
-                        }
-                    }
-                    else {
-                        if (distanceLeft <= distanceRight) {
-                            echoForExtremas = Action.ECHOLEFT;
-                            turnForExtremas = Action.FLYLEFT;
-                            return new Operation(Action.FLYRIGHT);
-                        } else {
-                            echoForExtremas = Action.ECHORIGHT;
-                            turnForExtremas = Action.FLYRIGHT;
-                            return new Operation(Action.FLYLEFT);
-                        }
-                    }
-                }
+                return checkingSurroundings();
             }
             case FINDEXTREMAONE -> {
-                //Finding an extreme point of the island
-                if(decisionMaker.getPrevOperation().isEcho()) {
-                    transition();
-                    if(currSubState == SubState.FINDEXTREMAONE)
-                        return new Operation(Action.FLYFORWARD);
-                    else
-                        return new Operation(turnForExtremas);
-                }
-                else {
-                    return new Operation(echoForExtremas);
-                }
+                return findingExtremaOne();
             }
             case FINDEXTREMATWO -> {
-                if(decisionMaker.getPrevOperation().isFly())
-                    return new Operation(echoForExtremas);
-                else {
-                    transition();
-                    if(currSubState == SubState.FINDEXTREMATWO)
-                        return new Operation(Action.FLYFORWARD);
-                    else
-                        return new Operation(turnForExtremas);
-                }
+                return findingExtremaTwo();
             }
             case NAVIGATETOISLAND -> {
-                if(decisionMaker.getPrevOperation().isEchoFwd()) {
-                    for (int i = 0; i < decisionMaker.getMap().getDistFront(); i++)
-                        operations.add(new Operation(Action.FLYFORWARD));
-                }
-                transition();
-                if(finished)
-                    return new Operation(Action.SCAN);
-                else
-                    return operations.remove();
+                return navigatingToIsland();
             }
             default -> throw new IllegalStateException("Unexpected value: " + currSubState);
         }
@@ -113,7 +55,7 @@ public class FindIsland implements SearchState {
     public void transition() {
         switch (currSubState) {
             case CHECKSURROUNDINGS -> {
-                islandInFront = decisionMaker.getMap().inFront().sameTileType(new MapTile("GROUND"));
+                islandInitInFront = decisionMaker.getMap().inFront().sameTileType(new MapTile("GROUND"));
                 currSubState = SubState.FINDEXTREMAONE;
             }
             case FINDEXTREMAONE-> {
@@ -135,6 +77,88 @@ public class FindIsland implements SearchState {
             }
             default -> {}
         }
+    }
+
+    private Operation checkingSurroundings() {
+        if(decisionMaker.getPrevOperation() == null) {
+            return new Operation(Action.ECHORIGHT);
+        }
+        else if (decisionMaker.getPrevOperation().isEchoRight()) {
+            return new Operation(Action.ECHOLEFT);
+        }
+        else if (decisionMaker.getPrevOperation().isEchoLeft()) {
+            return new Operation(Action.ECHOFORWARD);
+        }
+        else {
+            transition();
+            Integer distanceLeft = decisionMaker.getMap().getDistLeft();
+            Integer distanceRight = decisionMaker.getMap().getDistRight();
+            if (islandInitInFront) {
+                if (distanceLeft <= distanceRight) {
+                    echoForExtremas = Action.ECHORIGHT;
+                    turnForExtremas = Action.FLYRIGHT;
+                    return new Operation(Action.FLYLEFT);
+                } else {
+                    echoForExtremas = Action.ECHOLEFT;
+                    turnForExtremas = Action.FLYLEFT;
+                    return new Operation(Action.FLYRIGHT);
+                }
+            }
+            else {
+                if (distanceLeft <= distanceRight) {
+                    echoForExtremas = Action.ECHOLEFT;
+                    turnForExtremas = Action.FLYLEFT;
+                    return new Operation(Action.FLYRIGHT);
+                } else {
+                    echoForExtremas = Action.ECHORIGHT;
+                    turnForExtremas = Action.FLYRIGHT;
+                    return new Operation(Action.FLYLEFT);
+                }
+            }
+        }
+    }
+
+    private Operation findingExtremaOne() {
+        if(decisionMaker.getPrevOperation().isEcho()) {
+            transition();
+            if(currSubState == SubState.FINDEXTREMAONE)
+                return new Operation(Action.FLYFORWARD);
+            else
+                return new Operation(turnForExtremas);
+        }
+        else {
+            return new Operation(echoForExtremas);
+        }
+    }
+
+    private Operation findingExtremaTwo() {
+        if(!islandInitInFront && !updatedExtremaOperations) {
+            echoForExtremas = echoForExtremas.oppositeAction();
+            turnForExtremas = turnForExtremas.oppositeAction();
+            updatedExtremaOperations = true;
+        }
+
+        if(decisionMaker.getPrevOperation().isFly())
+            return new Operation(echoForExtremas);
+        else {
+            transition();
+            if(currSubState == SubState.FINDEXTREMATWO)
+                return new Operation(Action.FLYFORWARD);
+            else
+                return new Operation(turnForExtremas);
+        }
+    }
+
+    private Operation navigatingToIsland() {
+        if(decisionMaker.getPrevOperation().isEchoFwd()) {
+            for (int i = 0; i < decisionMaker.getMap().getDistFront(); i++)
+                operations.add(new Operation(Action.FLYFORWARD));
+        }
+        transition();
+        if(finished)
+            return new Operation(Action.SCAN);
+        else
+            return operations.remove();
     }
 
     public State getName() {

@@ -48,5 +48,21 @@ public enum Direction {
         };
     }
 
+    public Boolean isNorth() {
+        return this == Direction.NORTH;
+    }
+
+    public Boolean isSouth() {
+        return this == Direction.SOUTH;
+    }
+
+    public Boolean isEast() {
+        return this == Direction.EAST;
+    }
+
+    public Boolean isWest() {
+        return this == Direction.WEST;
+    }
+
 }
 

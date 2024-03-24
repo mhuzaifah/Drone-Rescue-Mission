@@ -19,12 +19,11 @@ public class Map {
     private Integer distFront;
     private MapTile toRight;
     private Integer distRight;
-
     private MapTile toLeft;
     private Integer distLeft;
-
     ArrayList<POI> creeks;
     POI emergencySite;
+    private Direction startingEdge = null;
 
     Map() {
         this.map = new HashMap<MapCoordinate, MapTile>();
@@ -186,4 +185,12 @@ public class Map {
         return closestCreek;
     }
 
+    public void setStartingEdge(Direction startingEdge) {
+        if(this.startingEdge == null)
+            this.startingEdge = startingEdge;
+    }
+
+    public Direction getStartingEdge() {
+        return this.startingEdge;
+    }
 }

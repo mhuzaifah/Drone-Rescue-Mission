@@ -30,6 +30,7 @@ public class Operation {
     }
 
     public boolean isFlyFwd() { return this.action == Action.FLYFORWARD; }
+
     public Action getAction() {
         return this.action;
     }

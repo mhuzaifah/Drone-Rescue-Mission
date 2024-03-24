@@ -16,6 +16,7 @@ public class DecisionMaker {
         this.drone = drone;
         this.map = map;
         this.prevDecision = null;
+        map.setStartingEdge(determineStartingEdge(drone.getHeading()));
     }
 
     public JSONObject makeDecision() {
@@ -80,6 +81,25 @@ public class DecisionMaker {
 
     public Operation getPrevOperation() {
         return this.prevDecision;
+    }
+
+    private Direction determineStartingEdge(Direction droneHeading) {
+        Direction startingEdge = null;
+        switch (droneHeading) {
+            case NORTH -> {
+                startingEdge = Direction.SOUTH;
+            }
+            case SOUTH -> {
+                startingEdge = Direction.NORTH;
+            }
+            case EAST -> {
+                startingEdge = Direction.WEST;
+            }
+            case WEST -> {
+                startingEdge = Direction.EAST;
+            }
+        }
+        return startingEdge;
     }
 
 }

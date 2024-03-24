@@ -11,7 +11,6 @@ public interface SearchState {
     Operation handle();
     void transition();
     Boolean isFinished();
-    
     State getName();
 
 }

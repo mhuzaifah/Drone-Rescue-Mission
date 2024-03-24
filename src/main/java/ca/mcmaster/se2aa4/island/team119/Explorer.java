@@ -74,7 +74,6 @@ public class Explorer implements IExplorerRaid {
     @Override
     public String deliverFinalReport() {
         FinalReport finalReport = new FinalReport(map);
-        logger.info(finalReport.getReport());
         return finalReport.getReport();
     }
 

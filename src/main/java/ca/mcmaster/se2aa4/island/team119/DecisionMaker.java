@@ -1,3 +1,11 @@
+// Muhammad Huzaifah, Anam Khan, Haniya Kashif
+// date: 24/03/2024
+// TA: Eshaan Chaudhari
+// Drone Rescue Mission
+// The DecisionMaker class overall encapsulates the decision-making process for the drone as it navigates the island,
+// Starting off by determing which edge of the map it starts at, and which direction it should be facing then
+// It then determines actions the drone should do based on its current state or if it should go back to base/return home
+
 package ca.mcmaster.se2aa4.island.team119;
 
 import org.json.JSONObject;

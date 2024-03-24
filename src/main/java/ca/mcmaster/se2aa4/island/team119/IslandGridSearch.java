@@ -1,12 +1,14 @@
 package ca.mcmaster.se2aa4.island.team119;
 
+import org.apache.logging.log4j.LogManager;
+
 import java.util.ArrayDeque;
 import java.util.Queue;
 
 public class IslandGridSearch implements SearchState, SearchAlgo {
 
-    private DecisionMaker decisionMaker;
-    private final State stateName = State.SEARCHISLAND;
+    private final SearchStateName name = SearchStateName.SEARCHISLAND;
+    private DecisionMaker decisionHandler;
     private Boolean finished = false;
     private SubState currSubState;
     enum SubState {
@@ -20,11 +22,10 @@ public class IslandGridSearch implements SearchState, SearchAlgo {
     private Queue<Operation> operations;
     private Operation turn;
     private Operation echoForTurn;
-    private Boolean checkedTurnEdgeCase = false;
     private Boolean loopingBack = false;
 
-    IslandGridSearch(DecisionMaker decisionMaker) {
-        this.decisionMaker = decisionMaker;
+    IslandGridSearch(DecisionMaker decisionHandler) {
+        this.decisionHandler = decisionHandler;
         this.currSubState = SubState.EXPLORE;
         this.operations = new ArrayDeque<>();
         setDirectionOfInterest();
@@ -33,18 +34,12 @@ public class IslandGridSearch implements SearchState, SearchAlgo {
 
     @Override
     public Operation handle() {
+        setDirectionOfInterest();
         return search();
     }
 
     @Override
-    public Operation search() {
-        setDirectionOfInterest();
-        transition();
-        return operations.remove();
-    }
-
-    @Override
-    public void transition() {
+    public Operation search () {
         setDirectionOfInterest();
         switch (currSubState) {
             case EXPLORE -> {
@@ -66,11 +61,12 @@ public class IslandGridSearch implements SearchState, SearchAlgo {
                 loopBackEvenCase();
             }
         }
+        return operations.remove();
     }
 
     private void explore() {
-        if(decisionMaker.getPrevOperation().isEchoFwd()) {
-            if (decisionMaker.getMap().inFront().sameTileType(new MapTile("OCEAN"))) {
+        if(decisionHandler.getPrevOperation().isEchoFwd()) {
+            if (decisionHandler.getMap().inFront().sameTileType(new MapTile("OCEAN"))) {
                 getReadyForTurn();
             }
             else {
@@ -80,15 +76,16 @@ public class IslandGridSearch implements SearchState, SearchAlgo {
     }
 
     private void getReadyForTurn() {
-        if(decisionMaker.getMap().getDistFront() > 2)
+        if(decisionHandler.getMap().getDistFront() > 2)
             flyFwdAndScan(2);
-        currSubState = SubState.TURN;
         operations.add(echoForTurn);
+        currSubState = SubState.TURN;
     }
 
     private void moveForwardInExploration() {
-        Integer distInFront = decisionMaker.getMap().getDistFront();
-        MapTile tileInFront = decisionMaker.getMap().inFront();
+        Integer distInFront = decisionHandler.getMap().getDistFront();
+        MapTile tileInFront = decisionHandler.getMap().inFront();
+        LogManager.getLogger().info("TILE IN FRONT {}", tileInFront.tileType.name());
         if(distInFront == 0 && tileInFront.sameTileType(new MapTile("GROUND"))) {
            flyFwdAndScan(1);
         }
@@ -102,19 +99,18 @@ public class IslandGridSearch implements SearchState, SearchAlgo {
     }
 
     private void turn() {
-        Operation prevOperation = decisionMaker.getPrevOperation();
+        Operation prevOperation = decisionHandler.getPrevOperation();
         if(prevOperation.isEchoRight() || prevOperation.isEchoLeft()) {
             turnAtCorrectTime();
         }
         else if(prevOperation.isEchoFwd()) {
-            returnExplorationOrLoopBack();
+            determinePostTurnAction();
         }
     }
 
     private void turnAtCorrectTime() {
-        Operation prevOperation = decisionMaker.getPrevOperation();
-        Integer distance = prevOperation.isEchoRight() ? decisionMaker.getMap().getDistRight() : decisionMaker.getMap().getDistLeft();
-        MapTile tileToEchoSide = prevOperation.isEchoRight() ? decisionMaker.getMap().toRight() : decisionMaker.getMap().toLeft();
+        Operation prevOperation = decisionHandler.getPrevOperation();
+        Integer distance = prevOperation.isEchoRight() ? decisionHandler.getMap().getDistRight() : decisionHandler.getMap().getDistLeft();
         if (distance == 0) {
             operations.add(new Operation(Action.FLYFORWARD));
             operations.add(echoForTurn);
@@ -125,16 +121,17 @@ public class IslandGridSearch implements SearchState, SearchAlgo {
         }
     }
 
-    private void returnExplorationOrLoopBack() {
-        if(decisionMaker.getMap().inFront().sameTileType(new MapTile("OCEAN"))) {
+    private void determinePostTurnAction() {
+        if(decisionHandler.getMap().inFront().sameTileType(new MapTile("OCEAN"))) {
             if(!loopingBack) {
                 currSubState = SubState.LOOPBACKSETUP;
                 loopingBack = true;
-                setDirectionOfInterest();
                 operations.add(echoForTurn);
             }
-            else
-                operations.add(new Operation(Action.STOP));
+            else {
+                finished = true;
+                operations.add(new Operation(Action.SCAN));
+            }
         }
         else {
             currSubState = SubState.GETBACKTOISLAND;
@@ -143,8 +140,8 @@ public class IslandGridSearch implements SearchState, SearchAlgo {
     }
 
     private void getBackToIsland() {
-        if(decisionMaker.getPrevOperation().isEchoFwd()) {
-            Integer distInFront = decisionMaker.getMap().getDistFront();
+        if(decisionHandler.getPrevOperation().isEchoFwd()) {
+            Integer distInFront = decisionHandler.getMap().getDistFront();
             for (int i = 0; i < distInFront - 1; i++) {
                 operations.add(new Operation(Action.FLYFORWARD));
             }
@@ -155,8 +152,8 @@ public class IslandGridSearch implements SearchState, SearchAlgo {
     }
 
     private void loopBackSetup() {
-        if (decisionMaker.getPrevOperation().isEcho()) {
-            Integer dist = decisionMaker.getPrevOperation().isEchoLeft() ? decisionMaker.getMap().getDistLeft() : decisionMaker.getMap().getDistRight();
+        if (decisionHandler.getPrevOperation().isEcho()) {
+            Integer dist = decisionHandler.getPrevOperation().isEchoLeft() ? decisionHandler.getMap().getDistLeft() : decisionHandler.getMap().getDistRight();
 
             if (dist == 0) {
                 moveSideways(1);
@@ -179,8 +176,8 @@ public class IslandGridSearch implements SearchState, SearchAlgo {
     }
 
     private void loopBackEvenCase() {
-        if (decisionMaker.getPrevOperation().isEchoFwd()) {
-            MapTile tileInFront = decisionMaker.getMap().inFront();
+        if (decisionHandler.getPrevOperation().isEchoFwd()) {
+            MapTile tileInFront = decisionHandler.getMap().inFront();
 
             if (!tileInFront.sameTileType(new MapTile("GROUND")))
                 moveSideways(2);
@@ -192,8 +189,8 @@ public class IslandGridSearch implements SearchState, SearchAlgo {
     }
 
     private void setDirectionOfInterest() {
-        Direction droneHeading = decisionMaker.getDrone().getHeading();
-        Direction startingEdge = decisionMaker.getMap().getStartingEdge();
+        Direction droneHeading = decisionHandler.getDrone().getHeading();
+        Direction startingEdge = decisionHandler.getMap().getStartingEdge();
 
         if(startingEdge.isNorth()) {
             if(droneHeading.isEast()) {
@@ -243,8 +240,10 @@ public class IslandGridSearch implements SearchState, SearchAlgo {
     }
 
     private void flyFwdAndScan(int times) {
-        operations.add(new Operation(Action.FLYFORWARD));
-        operations.add(new Operation(Action.SCAN));
+        for(int i=0; i < times; i++) {
+            operations.add(new Operation(Action.FLYFORWARD));
+            operations.add(new Operation(Action.SCAN));
+        }
     }
 
     private void moveSideways(int spaces) {
@@ -262,8 +261,9 @@ public class IslandGridSearch implements SearchState, SearchAlgo {
     }
 
     @Override
-    public State getName() {
-        return this.stateName;
+    public SearchStateName getName() {
+        return this.name;
     }
+
 
 }

@@ -38,4 +38,36 @@ public class DirectionTest {
         assertEquals(Direction.EAST, Direction.SOUTH.lookLeft());
         assertEquals(Direction.NORTH, Direction.EAST.lookLeft());
     }
+
+    @Test
+    public void testIsNorth() {
+        assertEquals(true, Direction.NORTH.isNorth());
+        assertEquals(false, Direction.SOUTH.isNorth());
+        assertEquals(false, Direction.EAST.isNorth());
+        assertEquals(false, Direction.WEST.isNorth());
+    }
+
+    @Test
+    public void testIsSouth() {
+        assertEquals(true, Direction.SOUTH.isSouth());
+        assertEquals(false, Direction.NORTH.isSouth());
+        assertEquals(false, Direction.EAST.isSouth());
+        assertEquals(false, Direction.WEST.isSouth());
+    }
+
+    @Test
+    public void testIsEast() {
+        assertEquals(true, Direction.EAST.isEast());
+        assertEquals(false, Direction.NORTH.isEast());
+        assertEquals(false, Direction.SOUTH.isEast());
+        assertEquals(false, Direction.WEST.isEast());
+    }
+
+    @Test
+    public void testIsWest() {
+        assertEquals(true, Direction.WEST.isWest());
+        assertEquals(false, Direction.NORTH.isWest());
+        assertEquals(false, Direction.SOUTH.isWest());
+        assertEquals(false, Direction.EAST.isWest());
+    }
 }

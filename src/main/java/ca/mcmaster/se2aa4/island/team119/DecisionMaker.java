@@ -31,7 +31,7 @@ public class DecisionMaker {
             }
             case SEARCHISLAND -> {
                 if(currState.isFinished()) {
-                    this.currState = new ReturnHome();
+                    this.currState = new ReturnHome(this);
                 }
             }
             default -> {}

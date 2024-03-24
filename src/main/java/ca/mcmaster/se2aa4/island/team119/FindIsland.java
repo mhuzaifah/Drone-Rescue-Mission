@@ -5,9 +5,9 @@ import java.util.Queue;
 
 public class FindIsland implements SearchState {
 
-    private DecisionMaker decisionMaker;
+    private final SearchStateName name = SearchStateName.FINDISLAND;
+    private DecisionMaker decisionHandler;
     private SubState currSubState;
-    private final State stateName = State.FINDISLAND;
     private Boolean finished = false;
     private Boolean islandInitInFront;
     private Boolean updatedExtremaOperations = false;
@@ -15,8 +15,8 @@ public class FindIsland implements SearchState {
     private Action turnForExtremas;
     private Queue<Operation> operations;
 
-    FindIsland(DecisionMaker dm) {
-        this.decisionMaker = dm;
+    FindIsland(DecisionMaker decisionHandler) {
+        this.decisionHandler = decisionHandler;
         this.currSubState = SubState.CHECKSURROUNDINGS;
     }
 
@@ -46,21 +46,20 @@ public class FindIsland implements SearchState {
         }
     }
 
-    @Override
-    public void transition() {
+    public void transitionLogic() {
         switch (currSubState) {
             case CHECKSURROUNDINGS -> {
-                islandInitInFront = decisionMaker.getMap().inFront().sameTileType(new MapTile("GROUND"));
+                islandInitInFront = decisionHandler.getMap().inFront().sameTileType(new MapTile("GROUND"));
                 currSubState = SubState.FINDEXTREMAONE;
             }
             case FINDEXTREMAONE-> {
-                if (!decisionMaker.getMap().toLeft().sameTileType(new MapTile("GROUND")) && decisionMaker.getMap().toRight().sameTileType(new MapTile("OCEAN")))
+                if (!decisionHandler.getMap().toLeft().sameTileType(new MapTile("GROUND")) && decisionHandler.getMap().toRight().sameTileType(new MapTile("OCEAN")))
                     currSubState = SubState.FINDEXTREMATWO;
-                else if (!decisionMaker.getMap().toRight().sameTileType(new MapTile("GROUND")) && decisionMaker.getMap().toLeft().sameTileType(new MapTile("OCEAN")))
+                else if (!decisionHandler.getMap().toRight().sameTileType(new MapTile("GROUND")) && decisionHandler.getMap().toLeft().sameTileType(new MapTile("OCEAN")))
                     currSubState = SubState.FINDEXTREMATWO;
             }
             case FINDEXTREMATWO -> {
-                if (decisionMaker.getMap().toLeft().sameTileType(new MapTile("GROUND")) || decisionMaker.getMap().toRight().sameTileType(new MapTile("GROUND"))) {
+                if (decisionHandler.getMap().toLeft().sameTileType(new MapTile("GROUND")) || decisionHandler.getMap().toRight().sameTileType(new MapTile("GROUND"))) {
                     currSubState = SubState.NAVIGATETOISLAND;
                     operations = new ArrayDeque<>();
                     operations.add(new Operation(Action.ECHOFORWARD));
@@ -75,19 +74,19 @@ public class FindIsland implements SearchState {
     }
 
     private Operation checkingSurroundings() {
-        if(decisionMaker.getPrevOperation() == null) {
+        if(decisionHandler.getPrevOperation() == null) {
             return new Operation(Action.ECHORIGHT);
         }
-        else if (decisionMaker.getPrevOperation().isEchoRight()) {
+        else if (decisionHandler.getPrevOperation().isEchoRight()) {
             return new Operation(Action.ECHOLEFT);
         }
-        else if (decisionMaker.getPrevOperation().isEchoLeft()) {
+        else if (decisionHandler.getPrevOperation().isEchoLeft()) {
             return new Operation(Action.ECHOFORWARD);
         }
         else {
-            transition();
-            Integer distanceLeft = decisionMaker.getMap().getDistLeft();
-            Integer distanceRight = decisionMaker.getMap().getDistRight();
+            transitionLogic();
+            Integer distanceLeft = decisionHandler.getMap().getDistLeft();
+            Integer distanceRight = decisionHandler.getMap().getDistRight();
             if (islandInitInFront) {
                 if (distanceLeft <= distanceRight) {
                     echoForExtremas = Action.ECHORIGHT;
@@ -114,8 +113,8 @@ public class FindIsland implements SearchState {
     }
 
     private Operation findingExtremaOne() {
-        if(decisionMaker.getPrevOperation().isEcho()) {
-            transition();
+        if(decisionHandler.getPrevOperation().isEcho()) {
+            transitionLogic();
             if(currSubState == SubState.FINDEXTREMAONE)
                 return new Operation(Action.FLYFORWARD);
             else
@@ -133,10 +132,10 @@ public class FindIsland implements SearchState {
             updatedExtremaOperations = true;
         }
 
-        if(decisionMaker.getPrevOperation().isFly())
+        if(decisionHandler.getPrevOperation().isFly())
             return new Operation(echoForExtremas);
         else {
-            transition();
+            transitionLogic();
             if(currSubState == SubState.FINDEXTREMATWO)
                 return new Operation(Action.FLYFORWARD);
             else
@@ -145,23 +144,24 @@ public class FindIsland implements SearchState {
     }
 
     private Operation navigatingToIsland() {
-        if(decisionMaker.getPrevOperation().isEchoFwd()) {
-            for (int i = 0; i < decisionMaker.getMap().getDistFront(); i++)
+        if(decisionHandler.getPrevOperation().isEchoFwd()) {
+            for (int i = 0; i < decisionHandler.getMap().getDistFront(); i++)
                 operations.add(new Operation(Action.FLYFORWARD));
         }
-        transition();
+        transitionLogic();
         if(finished)
             return new Operation(Action.SCAN);
         else
             return operations.remove();
     }
 
-    public State getName() {
-        return this.stateName;
-    }
-
     public Boolean isFinished() {
         return this.finished;
+    }
+
+    @Override
+    public SearchStateName getName() {
+        return this.name;
     }
 
 }

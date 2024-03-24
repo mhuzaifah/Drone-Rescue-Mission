@@ -1,5 +1,7 @@
 package ca.mcmaster.se2aa4.island.team119;
 
+import org.apache.logging.log4j.LogManager;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -15,7 +17,7 @@ public class Map {
     private Integer distLeft;
     ArrayList<POI> creeks;
     POI emergencySite;
-    private Direction startingEdge = null;
+    private Direction startingEdge;
 
     Map() {
         this.map = new HashMap<MapCoordinate, MapTile>();
@@ -28,6 +30,7 @@ public class Map {
         this.distRight = null;
         this.distLeft = null;
         this.droneCord = new MapCoordinate(0,0);
+        this.startingEdge = null;
     }
 
     public void update(Response response, Direction droneHeading) throws IllegalArgumentException {
@@ -133,7 +136,11 @@ public class Map {
         return this.distLeft != null ? this.distLeft : -1;
     }
 
-    public POI findClosestCreek() throws IndexOutOfBoundsException{
+    public MapTile getCurrTile() {
+        return map.get(droneCord);
+    }
+
+    public POI findClosestCreek() throws IndexOutOfBoundsException {
         POI closestCreek = creeks.get(creeks.size()-1);
         if (emergencySite != null) {
             int emergencySiteX = emergencySite.getCoordinate().getX();
@@ -162,8 +169,14 @@ public class Map {
             this.startingEdge = startingEdge;
     }
 
-    public Direction getStartingEdge() {
-        return this.startingEdge;
+    public Direction getStartingEdge() throws NullPointerException {
+        if(this.startingEdge != null)
+            return this.startingEdge;
+        else
+            throw new NullPointerException("Starting Edge has not been initialized yet");
     }
 
+    public MapCoordinate getDronePosition() {
+        return this.droneCord;
+    }
 }

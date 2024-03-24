@@ -1,5 +1,7 @@
 package ca.mcmaster.se2aa4.island.team119;
 
+
+// enum of the drone's possible actions
 public enum Action {
 
     SCAN("scan"),
@@ -23,11 +25,13 @@ public enum Action {
         this.abreviation = abv;
     }
 
+    // returns the string of the action
     @Override
     public String toString() {
         return this.abreviation;
     }
 
+    // returns the opposite action as type Action
     public Action oppositeAction() {
         Action oppositeAction = null;
         switch (this) {

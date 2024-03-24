@@ -7,6 +7,8 @@ public class Operation {
         this.action = action;
     }
 
+    // these methods check what the action is
+    // return true if the actions are as specified, false, if not
     public boolean isEchoLeft() {return this.action == Action.ECHOLEFT;}
 
     public boolean isEchoRight() {
@@ -31,6 +33,7 @@ public class Operation {
 
     public boolean isFlyFwd() { return this.action == Action.FLYFORWARD; }
 
+    // returns the action
     public Action getAction() {
         return this.action;
     }

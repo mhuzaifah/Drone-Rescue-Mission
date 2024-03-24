@@ -12,14 +12,17 @@ public class POI {
         this.id = id;
     }
 
+    // returns the tile as a MapTile
     public MapTile getTile() {
         return this.tile;
     }
 
+    // returns the coordinate as a MapCoordinate
     public MapCoordinate getCoordinate() {
         return this.coordinate;
     }
 
+    // returns the ID of the POI as a String
     public String getId() {
         return this.id;
     }

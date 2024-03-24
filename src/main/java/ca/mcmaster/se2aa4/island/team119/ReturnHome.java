@@ -4,6 +4,7 @@ public class ReturnHome implements SearchState{
 
     ReturnHome(){}
 
+    // returns a scan operation
     @Override
     public Operation handle() {
         return new Operation(Action.SCAN);

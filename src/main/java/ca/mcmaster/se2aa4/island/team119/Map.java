@@ -30,6 +30,9 @@ public class Map {
         this.droneCord = new MapCoordinate(0,0);
     }
 
+    // updates the map using the response from the last action executed
+    // uses the type of the last response to update accordingly
+    // parameter - the response returned, direction of the drone
     public void update(Response response, Direction droneHeading) throws IllegalArgumentException {
         if(response instanceof EchoResponse) {
             update((EchoResponse) response);
@@ -45,6 +48,8 @@ public class Map {
         }
     }
 
+    // updates the map, including creeks and sites, after a scan
+    // parameters - response from scanning, of type ScanResponse
     private void update(ScanResponse response) {
         MapTile tile = new MapTile(response.getBiomes());
         String site = response.getSite();
@@ -63,6 +68,8 @@ public class Map {
         }
     }
 
+    // updates map, including the range, using response from echo
+    // parameters - response from echo, of type EchoResponse
     private void update(EchoResponse response) {
         Integer range = response.getRange();
         String found = response.getFound();
@@ -82,17 +89,19 @@ public class Map {
 
     }
 
+    // updates the map, including the drone coordinate, using the movement response
+    // parameters - response from movement, of type MovementResponse
     private void update(MovementResponse response, Direction droneHeading) {
         ResultType resultType = response.getType();
         if(resultType == ResultType.FLYFWDRESULT) {
-            droneCord.flyFwd(droneHeading);
+            droneCord.translateFwd(droneHeading);
             this.toRight = new MapTile("UNKNOWN");
             this.toLeft = new MapTile("UNKNOWN");
             this.distRight = null;
             this.distLeft = null;
         }
         else if(resultType == ResultType.FLYLEFTRESULT) {
-            droneCord.flyLeft(droneHeading);
+            droneCord.translateLeft(droneHeading);
             this.inFront = new MapTile("UNKNOWN");
             this.toRight = new MapTile("UNKNOWN");
             this.toLeft = new MapTile("UNKNOWN");
@@ -101,7 +110,7 @@ public class Map {
             this.distRight = null;
         }
         else if(resultType == ResultType.FLYRIGHTRESULT) {
-            droneCord.flyRight(droneHeading);
+            droneCord.translateRight(droneHeading);
             this.inFront = new MapTile("UNKNOWN");
             this.toRight = new MapTile("UNKNOWN");
             this.toLeft = new MapTile("UNKNOWN");
@@ -111,6 +120,7 @@ public class Map {
         }
     }
 
+    // these methods are getters, they return the tiles and distances to the front, right and left, of type MapTile and Integer, respectively
     public MapTile inFront() { return this.inFront; }
 
     public MapTile toLeft() {
@@ -133,21 +143,16 @@ public class Map {
         return this.distLeft != null ? this.distLeft : -1;
     }
 
+    // this method calculates the closest creek to the emergency site
+    // returns the closest creek as a POI
+    // throws IndexOutOfBoundsException if no creeks have been found
     public POI findClosestCreek() throws IndexOutOfBoundsException{
         POI closestCreek = creeks.get(creeks.size()-1);
         if (emergencySite != null) {
-            int emergencySiteX = emergencySite.getCoordinate().getX();
-            int emergencySiteY = emergencySite.getCoordinate().getY();
-
-            int creekX;
-            int creekY;
-
             double minDistance = Double.MAX_VALUE;
 
             for (POI creek : creeks) {
-                creekX = creek.getCoordinate().getX();
-                creekY = creek.getCoordinate().getY();
-                double distance = Math.sqrt(Math.pow((emergencySiteX - creekX), 2) + Math.pow((emergencySiteY - creekY), 2));
+                double distance = droneCord.calculateDistance(emergencySite.getCoordinate(), creek.getCoordinate());
                 if (distance < minDistance) {
                     minDistance = distance;
                     closestCreek = creek;
@@ -157,11 +162,13 @@ public class Map {
         return closestCreek;
     }
 
+    // sets starting edge of type Direction
     public void setStartingEdge(Direction startingEdge) {
         if(this.startingEdge == null)
             this.startingEdge = startingEdge;
     }
 
+    // getter - returns starting edge
     public Direction getStartingEdge() {
         return this.startingEdge;
     }

@@ -12,13 +12,13 @@ import org.junit.jupiter.api.function.Executable;
 
 public class MapTest {
 
-    Map map;
-    JSONObject responseInfo;
+    private Map map;
+    private JSONObject responseInfo;
 
     @BeforeEach
     public void setUp() {
-        map = new Map();
-        responseInfo = new JSONObject();
+        this.map = new Map();
+        this.responseInfo = new JSONObject();
         responseInfo.put("cost", 7);
         responseInfo.put("status", "OK");
     }
@@ -192,7 +192,6 @@ public class MapTest {
 
     @Test
     public void testFindClosestCreekSiteFound() {
-        // no creek site, creek site
         Executable exception = () -> map.findClosestCreek();
         assertThrows(IndexOutOfBoundsException.class, exception);
     }

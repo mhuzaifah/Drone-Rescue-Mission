@@ -1,4 +1,4 @@
-// Muhammad Huzaifa, Anam Khan, Haniya Kashif
+// Muhammad Huzaifah, Anam Khan, Haniya Kashif
 // date: 24/03/2024
 // TA: Eshaan Chaudhari
 // Drone

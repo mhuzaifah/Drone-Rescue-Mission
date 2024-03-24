@@ -18,7 +18,7 @@ public class DecisionHandler {
     private Map map; // The map object representing the map's features
     private BatteryManager batteryManager; // Manages the drone's battery threshold
     private HashMap<SearchStateName, SearchState> states; // Stores different search states
-    private SearchState currState; // The current state of the drone's grid search process/pattern
+    SearchState currState; // The current state of the drone's grid search process/pattern
     private Operation decision; // The decision made by the drone for the current state
     private Operation prevDecision; // The previous decision made by the drone
 

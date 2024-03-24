@@ -6,7 +6,7 @@ import java.util.Queue;
 public class FindIsland implements SearchState {
 
     private final SearchStateName name = SearchStateName.FINDISLAND;
-    private DecisionMaker decisionHandler;
+    private DecisionHandler decisionHandler;
     private SubState currSubState;
     private Boolean finished = false;
     private Boolean islandInitInFront;
@@ -15,9 +15,10 @@ public class FindIsland implements SearchState {
     private Action turnForExtremas;
     private Queue<Operation> operations;
 
-    FindIsland(DecisionMaker decisionHandler) {
+    FindIsland(DecisionHandler decisionHandler) {
         this.decisionHandler = decisionHandler;
         this.currSubState = SubState.CHECKSURROUNDINGS;
+        this.operations = new ArrayDeque<>();
     }
 
     enum SubState {
@@ -61,7 +62,6 @@ public class FindIsland implements SearchState {
             case FINDEXTREMATWO -> {
                 if (decisionHandler.getMap().toLeft().sameTileType(new MapTile("GROUND")) || decisionHandler.getMap().toRight().sameTileType(new MapTile("GROUND"))) {
                     currSubState = SubState.NAVIGATETOISLAND;
-                    operations = new ArrayDeque<>();
                     operations.add(new Operation(Action.ECHOFORWARD));
                 }
             }

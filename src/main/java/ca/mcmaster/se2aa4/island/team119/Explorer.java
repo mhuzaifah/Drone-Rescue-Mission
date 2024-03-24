@@ -14,7 +14,7 @@ public class Explorer implements IExplorerRaid {
     private final Logger logger = LogManager.getLogger();
     private Drone drone;
     private Map map;
-    private DecisionMaker decisionHandler;
+    private DecisionHandler decisionHandler;
     private InfoTranslator translator;
 
     @Override
@@ -25,7 +25,7 @@ public class Explorer implements IExplorerRaid {
         logger.info("** Initialization info:\n {}",initInfo.toString(2));
         map = new Map();
         drone = new Drone(initInfo.getString("heading"), initInfo.getInt("budget"));
-        decisionHandler = new DecisionMaker(drone, map);
+        decisionHandler = new DecisionHandler(drone, map);
         logger.info("The drone is facing {}", drone.getHeading());
         logger.info("Battery level is {}", drone.getBattery());
     }

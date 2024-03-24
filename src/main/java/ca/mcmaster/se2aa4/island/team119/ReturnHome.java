@@ -7,17 +7,18 @@ package ca.mcmaster.se2aa4.island.team119;
 
 public class ReturnHome implements SearchState{
 
-    DecisionMaker decisionHandler;
+    DecisionHandler decisionHandler;
     private final SearchStateName name = SearchStateName.SEARCHISLAND;
-    private Boolean finished;
+    private Boolean finished = false;
 
-    ReturnHome(DecisionMaker decisionHandler) {
+    ReturnHome(DecisionHandler decisionHandler) {
         this.decisionHandler = decisionHandler;
     }
 
     // returns a scan operation
     @Override
     public Operation handle() {
+        this.finished = true;
         return new Operation(Action.STOP);
     }
 

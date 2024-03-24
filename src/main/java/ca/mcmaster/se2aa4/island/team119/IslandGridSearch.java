@@ -8,7 +8,7 @@ import java.util.Queue;
 public class IslandGridSearch implements SearchState, SearchAlgo {
 
     private final SearchStateName name = SearchStateName.SEARCHISLAND;
-    private DecisionMaker decisionHandler;
+    private DecisionHandler decisionHandler;
     private Boolean finished = false;
     private SubState currSubState;
     enum SubState {
@@ -24,7 +24,7 @@ public class IslandGridSearch implements SearchState, SearchAlgo {
     private Operation echoForTurn;
     private Boolean loopingBack = false;
 
-    IslandGridSearch(DecisionMaker decisionHandler) {
+    IslandGridSearch(DecisionHandler decisionHandler) {
         this.decisionHandler = decisionHandler;
         this.currSubState = SubState.EXPLORE;
         this.operations = new ArrayDeque<>();

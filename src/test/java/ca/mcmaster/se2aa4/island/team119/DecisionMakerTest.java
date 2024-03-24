@@ -4,7 +4,7 @@ import org.junit.jupiter.api.BeforeEach;
 
 public class DecisionMakerTest {
 
-    private DecisionMaker decisionMaker;
+    private DecisionHandler decisionMaker;
     private Drone drone;
     private Map map;
 
@@ -12,7 +12,7 @@ public class DecisionMakerTest {
     public void setUp() {
         drone = new Drone("E", 7000);
         map = new Map(); // You may need to set up the map accordingly
-        decisionMaker = new DecisionMaker(drone, map);
+        decisionMaker = new DecisionHandler(drone, map);
     }
 
 

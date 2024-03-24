@@ -47,12 +47,12 @@ public class BatteryThresholdTest {
 
         // Perform the test for each data point
         for (int i = 0; i < currentLocations.length; i++) {
-            int calculatedDistance = batteryThreshold.calculateDistance(startingPoint, currentLocations[i]);
+            int calculatedDistance = (int) Math.ceil(startingPoint.calculateDistance(startingPoint, currentLocations[i]));
             assertEquals(expectedDistances00[i], calculatedDistance);
         }
 
         for (int i = 0; i < currentLocations.length; i++) {
-            int calculatedDistance = batteryThreshold.calculateDistance(anotherPoint, currentLocations[i]);
+            int calculatedDistance = (int) Math.ceil(anotherPoint.calculateDistance(anotherPoint, currentLocations[i]));
             assertEquals(expectedDistances20100[i], calculatedDistance);
         }
     }

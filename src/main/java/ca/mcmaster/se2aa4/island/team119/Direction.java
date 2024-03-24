@@ -1,3 +1,8 @@
+// Muhammad Huzaifa, Anam Khan, Haniya Kashif
+// date: 24/03/2024
+// TA: Eshaan Chaudhari
+// Direction
+// enum of the directions
 package ca.mcmaster.se2aa4.island.team119;
 
 public enum Direction {
@@ -13,11 +18,14 @@ public enum Direction {
         this.abreviation = abv;
     }
 
+    // returns direction as a string of only the first letter
     @Override
     public String toString() {
         return this.abreviation;
     }
 
+    // returns the direction as an element of the Direction enum
+    // parameter - the string abreviation of the direction
     public static Direction toDirection(String direc) {
         if(direc.equals("N")) return NORTH;
         else if(direc.equals("S")) return SOUTH;
@@ -28,6 +36,7 @@ public enum Direction {
         }
     }
 
+    // returns the direction to the right of the current direction
     public Direction lookRight() {
         return switch (this) {
             case NORTH -> EAST;
@@ -38,6 +47,7 @@ public enum Direction {
         };
     }
 
+    // returns the direction to the left of the current direction
     public Direction lookLeft() {
         return switch (this) {
             case NORTH -> WEST;
@@ -48,6 +58,7 @@ public enum Direction {
         };
     }
 
+    // these methods returns true if the direction is as specified, false if not
     public Boolean isNorth() {
         return this == Direction.NORTH;
     }

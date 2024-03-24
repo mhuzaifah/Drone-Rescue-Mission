@@ -7,7 +7,8 @@ public enum ResultType {
     SCANRESULT(),
     FLYFWDRESULT(),
     FLYRIGHTRESULT(),
-    FLYLEFTRESULT();
+    FLYLEFTRESULT(),
+    STOPRESULT;
 
     ResultType() {}
 

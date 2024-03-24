@@ -23,7 +23,6 @@ public class ScanResponse extends Response  {
         for (Object biomeObj : biomesJSONArray) {
             biomes.add(biomeObj.toString());
         }
-
         return biomes;
     }
 

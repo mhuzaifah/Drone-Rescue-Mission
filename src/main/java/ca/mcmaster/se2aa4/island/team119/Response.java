@@ -31,6 +31,7 @@ public abstract class Response {
             case FLYFORWARD -> { this.type = ResultType.FLYFWDRESULT; }
             case FLYRIGHT -> { this.type = ResultType.FLYRIGHTRESULT; }
             case FLYLEFT -> { this.type = ResultType.FLYLEFTRESULT; }
+            case STOP -> { this.type = ResultType.STOPRESULT; }
         }
     }
 
@@ -44,6 +45,10 @@ public abstract class Response {
 
     protected JSONObject getExtras() {
         return this.extras;
+    }
+
+    public String getStatus() {
+        return this.status;
     }
 }
 

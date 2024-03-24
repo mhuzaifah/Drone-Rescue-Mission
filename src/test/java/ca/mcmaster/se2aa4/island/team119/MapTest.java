@@ -55,8 +55,8 @@ public class MapTest {
 
         map.update(response, Direction.NORTH);
 
-        assertNull(map.emergencySite);
-        assertEquals(new ArrayList<POI>(), map.creeks);
+        assertNull(map.getEmergencySite());
+        assertEquals(new ArrayList<POI>(), map.getCreeks());
     }
 
     @Test
@@ -81,8 +81,8 @@ public class MapTest {
 
         POI creek  = new POI(new MapTile(response.getBiomes()), new MapCoordinate(0, 0), response.getCreeks().get(0));
 
-        assertEquals(creek.getId(), map.creeks.get(0).getId());
-        assertEquals(creek.getCoordinate().toString(), map.creeks.get(0).getCoordinate().toString());
+        assertEquals(creek.getId(), map.getCreeks().get(0).getId());
+        assertEquals(creek.getCoordinate().toString(), map.getCreeks().get(0).getCoordinate().toString());
     }
 
     @Test
@@ -107,8 +107,8 @@ public class MapTest {
 
         POI site  = new POI(new MapTile(response.getBiomes()), new MapCoordinate(0, 0), response.getSite());
 
-        assertEquals(site.getId(), map.emergencySite.getId());
-        assertEquals(site.getCoordinate().toString(), map.emergencySite.getCoordinate().toString());
+        assertEquals(site.getId(), map.getEmergencySite().getId());
+        assertEquals(site.getCoordinate().toString(), map.getEmergencySite().getCoordinate().toString());
     }
 
     @Test
@@ -198,16 +198,16 @@ public class MapTest {
 
     @Test
     public void testFindClosestCreekFound() {
-        map.creeks.add(new POI(new MapTile("GROUND"), new MapCoordinate(0, 0), "be398c6e-9471-4949-991d-9be788d8616e"));
-        map.creeks.add(new POI(new MapTile("GROUND"), new MapCoordinate(1, 1), "9d1058ae-e12c-40ec-9507-80490fd76875"));
+        map.getCreeks().add(new POI(new MapTile("GROUND"), new MapCoordinate(0, 0), "be398c6e-9471-4949-991d-9be788d8616e"));
+        map.getCreeks().add(new POI(new MapTile("GROUND"), new MapCoordinate(1, 1), "9d1058ae-e12c-40ec-9507-80490fd76875"));
         assertEquals("9d1058ae-e12c-40ec-9507-80490fd76875", map.findClosestCreek().getId());
     }
 
     @Test
     public void testFindClosestCreekBothFound() {
-        map.creeks.add(new POI(new MapTile("GROUND"), new MapCoordinate(1, 1), "be398c6e-9471-4949-991d-9be788d8616e"));
-        map.creeks.add(new POI(new MapTile("GROUND"), new MapCoordinate(0, 0), "9d1058ae-e12c-40ec-9507-80490fd76875"));
-        map.emergencySite = new POI(new MapTile("GROUND"), new MapCoordinate(3, 4), "fea0e031-77f4-41e4-a44a-af57d9fdc1b4");
+        map.getCreeks().add(new POI(new MapTile("GROUND"), new MapCoordinate(1, 1), "be398c6e-9471-4949-991d-9be788d8616e"));
+        map.getCreeks().add(new POI(new MapTile("GROUND"), new MapCoordinate(0, 0), "9d1058ae-e12c-40ec-9507-80490fd76875"));
+        map.setEmergencySite(new POI(new MapTile("GROUND"), new MapCoordinate(3, 4), "fea0e031-77f4-41e4-a44a-af57d9fdc1b4"));
         assertEquals("be398c6e-9471-4949-991d-9be788d8616e", map.findClosestCreek().getId());
     }
 

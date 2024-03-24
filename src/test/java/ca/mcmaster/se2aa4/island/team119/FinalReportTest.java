@@ -8,7 +8,7 @@ public class FinalReportTest {
     @Test
     public void testGetReportCreekFound() {
         Map map = new Map();
-        map.creeks.add(new POI(new MapTile("GROUND"), new MapCoordinate(0, 0), "be398c6e-9471-4949-991d-9be788d8616e"));
+        map.getCreeks().add(new POI(new MapTile("GROUND"), new MapCoordinate(0, 0), "be398c6e-9471-4949-991d-9be788d8616e"));
         FinalReport finalReport = new FinalReport(map);
         assertEquals("be398c6e-9471-4949-991d-9be788d8616e", finalReport.getReport());
     }

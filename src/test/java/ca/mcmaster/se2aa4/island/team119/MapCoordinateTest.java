@@ -29,58 +29,58 @@ public class MapCoordinateTest {
     }
 
     @Test
-    public void testFlyFwd() {
-        mapCoordinate.flyFwd(Direction.NORTH);
+    public void testTranslateFwd() {
+        mapCoordinate.translateFwd(Direction.NORTH);
         assertEquals(15, mapCoordinate.getX());
         assertEquals(14, mapCoordinate.getY());
 
-        mapCoordinate.flyFwd(Direction.SOUTH);
+        mapCoordinate.translateFwd(Direction.SOUTH);
         assertEquals(15, mapCoordinate.getX());
         assertEquals(15, mapCoordinate.getY());
 
-        mapCoordinate.flyFwd(Direction.EAST);
+        mapCoordinate.translateFwd(Direction.EAST);
         assertEquals(14, mapCoordinate.getX());
         assertEquals(15, mapCoordinate.getY());
 
-        mapCoordinate.flyFwd(Direction.WEST);
+        mapCoordinate.translateFwd(Direction.WEST);
         assertEquals(15, mapCoordinate.getX());
         assertEquals(15, mapCoordinate.getY());
     }
 
     @Test
-    public void testFlyLeft() {
-        mapCoordinate.flyLeft(Direction.NORTH);
+    public void testTranslateLeft() {
+        mapCoordinate.translateLeft(Direction.NORTH);
         assertEquals(16, mapCoordinate.getX());
         assertEquals(14, mapCoordinate.getY());
 
-        mapCoordinate.flyLeft(Direction.SOUTH);
+        mapCoordinate.translateLeft(Direction.SOUTH);
         assertEquals(15, mapCoordinate.getX());
         assertEquals(15, mapCoordinate.getY());
 
-        mapCoordinate.flyLeft(Direction.EAST);
+        mapCoordinate.translateLeft(Direction.EAST);
         assertEquals(14, mapCoordinate.getX());
         assertEquals(14, mapCoordinate.getY());
 
-        mapCoordinate.flyLeft(Direction.WEST);
+        mapCoordinate.translateLeft(Direction.WEST);
         assertEquals(15, mapCoordinate.getX());
         assertEquals(15, mapCoordinate.getY());
     }
 
     @Test
-    public void testFlyRight() {
-        mapCoordinate.flyRight(Direction.NORTH);
+    public void testTranslateRight() {
+        mapCoordinate.translateRight(Direction.NORTH);
         assertEquals(14, mapCoordinate.getX());
         assertEquals(14, mapCoordinate.getY());
 
-        mapCoordinate.flyRight(Direction.SOUTH);
+        mapCoordinate.translateRight(Direction.SOUTH);
         assertEquals(15, mapCoordinate.getX());
         assertEquals(15, mapCoordinate.getY());
 
-        mapCoordinate.flyRight(Direction.EAST);
+        mapCoordinate.translateRight(Direction.EAST);
         assertEquals(14, mapCoordinate.getX());
         assertEquals(16, mapCoordinate.getY());
 
-        mapCoordinate.flyRight(Direction.WEST);
+        mapCoordinate.translateRight(Direction.WEST);
         assertEquals(15, mapCoordinate.getX());
         assertEquals(15, mapCoordinate.getY());
     }

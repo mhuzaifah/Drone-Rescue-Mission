@@ -4,7 +4,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class BatteryThresholdTest {
+public class BatteryManagerTest {
 
     // Test cases for different current locations
     MapCoordinate[] currentLocations = {
@@ -22,7 +22,7 @@ public class BatteryThresholdTest {
         // Create an instance of BatteryThreshold
         MapCoordinate startingPoint = new MapCoordinate(0, 0);
         MapCoordinate anotherPoint = new MapCoordinate(-20, 100);
-        BatteryThreshold batteryThreshold = new BatteryThreshold(startingPoint);
+        BatteryManager batteryManager = new BatteryManager();
 
         // Expected threshold values for each test case
         int[] expectedDistances00 = {
@@ -67,8 +67,8 @@ public class BatteryThresholdTest {
         // Define the starting point coordinates
         MapCoordinate startingPoint = new MapCoordinate(0, 0);
 
-        // Create a BatteryThreshold object
-        BatteryThreshold batteryThreshold = new BatteryThreshold(startingPoint);
+        // Create a BatteryManager object
+        BatteryManager batteryManager = new BatteryManager();
 
         // Expected threshold values for each test case
         int[] expectedThresholds = {
@@ -83,7 +83,7 @@ public class BatteryThresholdTest {
 
         // Perform the tests
         for (int i = 0; i < currentLocations.length; i++) {
-            int actualThreshold = batteryThreshold.calculateThreshold(currentLocations[i]);
+            int actualThreshold = batteryManager.calculateThreshold(currentLocations[i]);
             assertEquals(expectedThresholds[i], actualThreshold);
         }
     }

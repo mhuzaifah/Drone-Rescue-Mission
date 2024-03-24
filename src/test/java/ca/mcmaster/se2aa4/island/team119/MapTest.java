@@ -210,4 +210,5 @@ public class MapTest {
         map.emergencySite = new POI(new MapTile("GROUND"), new MapCoordinate(3, 4), "fea0e031-77f4-41e4-a44a-af57d9fdc1b4");
         assertEquals("be398c6e-9471-4949-991d-9be788d8616e", map.findClosestCreek().getId());
     }
+
 }

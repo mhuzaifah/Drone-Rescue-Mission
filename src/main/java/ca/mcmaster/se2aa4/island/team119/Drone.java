@@ -1,5 +1,12 @@
+// Muhammad Huzaifa, Anam Khan, Haniya Kashif
+// date: 24/03/2024
+// TA: Eshaan Chaudhari
+// Drone
+// holds info about drone object and returns commands for movements
+
 package ca.mcmaster.se2aa4.island.team119;
 
+import org.apache.logging.log4j.LogManager;
 import org.json.JSONObject;
 
 public class Drone {

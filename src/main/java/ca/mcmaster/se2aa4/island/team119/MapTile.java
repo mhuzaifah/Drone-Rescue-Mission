@@ -1,3 +1,9 @@
+// Muhammad Huzaifa, Anam Khan, Haniya Kashif
+// date: 24/03/2024
+// TA: Eshaan Chaudhari
+// MapTile
+// holds tileType of tile on Map
+
 package ca.mcmaster.se2aa4.island.team119;
 
 import java.util.ArrayList;

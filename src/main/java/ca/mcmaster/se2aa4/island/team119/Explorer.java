@@ -1,7 +1,6 @@
 package ca.mcmaster.se2aa4.island.team119;
 
 import java.io.StringReader;
-import java.util.Objects;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -15,9 +14,8 @@ public class Explorer implements IExplorerRaid {
     private final Logger logger = LogManager.getLogger();
     private Drone drone;
     private Map map;
-    private DecisionMaker decisionMaker;
+    private DecisionHandler decisionHandler;
     private InfoTranslator translator;
-    int decisioncount = 0;
 
     @Override
     public void initialize(String s) {
@@ -27,35 +25,16 @@ public class Explorer implements IExplorerRaid {
         logger.info("** Initialization info:\n {}",initInfo.toString(2));
         map = new Map();
         drone = new Drone(initInfo.getString("heading"), initInfo.getInt("budget"));
-        decisionMaker = new DecisionMaker(drone, map);
+        decisionHandler = new DecisionHandler(drone, map);
         logger.info("The drone is facing {}", drone.getHeading());
         logger.info("Battery level is {}", drone.getBattery());
     }
 
     @Override
     public String takeDecision() {
-        // refactor to use battery threshold
-        if(drone.getBattery() > 100) {
-            try {
-                decisioncount++;
-                JSONObject decision = decisionMaker.makeDecision();
-                logger.info("** Decision: {}", decision.toString());
-                return decision.toString();
-            } catch (IllegalArgumentException e) {
-                //Refactor this catch block
-                logger.info("ERROR: {}", e.getMessage());
-                return null;
-            }
-        }
-        else{
-            if(decisioncount == 0) {
-                decisioncount++;
-                return new JSONObject().put("action", "scan").toString();
-            }
-            else {
-                return new JSONObject().put("action", "stop").toString();
-            }
-        }
+        JSONObject decision = decisionHandler.makeDecision();
+        logger.info("** Decision: {}", decision.toString());
+        return decision.toString();
     }
 
     @Override
@@ -63,7 +42,7 @@ public class Explorer implements IExplorerRaid {
         JSONObject responseInfo = new JSONObject(new JSONTokener(new StringReader(s)));
         logger.info("** Response received:\n"+ responseInfo.toString(2));
 
-        Response response = translator.createResponse(responseInfo, decisionMaker.getPrevOperation());
+        Response response = translator.createResponse(responseInfo, decisionHandler.getPrevOperation());
         map.update(response, drone.getHeading());
         drone.update(response);
 

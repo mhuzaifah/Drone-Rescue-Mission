@@ -1,3 +1,9 @@
+// Muhammad Huzaifa, Anam Khan, Haniya Kashif
+// date: 24/03/2024
+// TA: Eshaan Chaudhari
+// POI
+// holds all info about a point of interest, including coordinates and ID
+
 package ca.mcmaster.se2aa4.island.team119;
 
 public class POI {

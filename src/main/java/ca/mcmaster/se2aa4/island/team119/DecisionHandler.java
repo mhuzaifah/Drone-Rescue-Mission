@@ -8,43 +8,69 @@
 
 package ca.mcmaster.se2aa4.island.team119;
 
+import org.apache.logging.log4j.LogManager;
 import org.json.JSONObject;
 
-public class DecisionMaker {
+import java.util.HashMap;
+
+public class DecisionHandler {
 
     private Drone drone;
+    private Map map;
+    private BatteryManager batteryManager;
+    private HashMap<SearchStateName, SearchState> states;
     private SearchState currState;
     private Operation decision;
     private Operation prevDecision;
-    private Map map;
 
-    DecisionMaker(Drone drone, Map map) {
-        this.currState = new FindIsland(this);
+    DecisionHandler(Drone drone, Map map) {
         this.drone = drone;
         this.map = map;
-        this.prevDecision = null;
         map.setStartingEdge(determineStartingEdge(drone.getHeading()));
+        this.batteryManager = new BatteryManager();
+        this.prevDecision = null;
+        this.states = new HashMap<>();
+        this.states.put(SearchStateName.FINDISLAND, new FindIsland(this));
+        this.states.put(SearchStateName.SEARCHISLAND, new IslandGridSearch(this));
+        this.states.put(SearchStateName.RETURNHOME, new ReturnHome(this));
+        this.currState = states.get(SearchStateName.FINDISLAND);
     }
 
     public JSONObject makeDecision() {
 
+        setState();
+
         decision = currState.handle();
         prevDecision = decision;
 
+        return executeDecision(decision);
+
+    }
+
+    private void setState() {
         switch (currState.getName()) {
             case FINDISLAND  -> {
-                if(currState.isFinished()) {
+                if(batteryManager.exceededThreshold(drone.getBattery(), map.getDronePosition())) {
+                    this.currState = states.get(SearchStateName.SEARCHISLAND);
+                }
+                else if(currState.isFinished()) {
                     this.currState = new IslandGridSearch(this);
                 }
             }
             case SEARCHISLAND -> {
-                if(currState.isFinished()) {
-                    this.currState = new ReturnHome();
+                if(batteryManager.exceededThreshold(drone.getBattery(), map.getDronePosition())) {
+                    this.currState = states.get(SearchStateName.RETURNHOME);
+                }
+                else if(currState.isFinished()) {
+                    this.currState = states.get(SearchStateName.RETURNHOME);
                 }
             }
-            default -> {}
+            case RETURNHOME -> {}
+            default -> throw new IllegalStateException("Unexpected value: " + currState.getName());
         }
+    }
 
+    private JSONObject executeDecision(Operation decision) {
         switch (this.decision.getAction()) {
             case SCAN -> {
                 return drone.scan();
@@ -72,7 +98,6 @@ public class DecisionMaker {
             }
             default -> throw new IllegalStateException("Unexpected value: " + this.decision.getAction());
         }
-
     }
 
     public Map getMap() {

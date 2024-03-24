@@ -1,4 +1,12 @@
+// Muhammad Huzaifa, Anam Khan, Haniya Kashif
+// date: 24/03/2024
+// TA: Eshaan Chaudhari
+// Map
+// holds all info about map and updates the map
+
 package ca.mcmaster.se2aa4.island.team119;
+
+import org.apache.logging.log4j.LogManager;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -15,7 +23,7 @@ public class Map {
     private Integer distLeft;
     ArrayList<POI> creeks;
     POI emergencySite;
-    private Direction startingEdge = null;
+    private Direction startingEdge;
 
     Map() {
         this.map = new HashMap<MapCoordinate, MapTile>();
@@ -28,6 +36,7 @@ public class Map {
         this.distRight = null;
         this.distLeft = null;
         this.droneCord = new MapCoordinate(0,0);
+        this.startingEdge = null;
     }
 
     // updates the map using the response from the last action executed
@@ -143,6 +152,10 @@ public class Map {
         return this.distLeft != null ? this.distLeft : -1;
     }
 
+    public MapTile getCurrTile() {
+        return map.get(droneCord);
+    }
+
     // this method calculates the closest creek to the emergency site
     // returns the closest creek as a POI
     // throws IndexOutOfBoundsException if no creeks have been found
@@ -169,8 +182,14 @@ public class Map {
     }
 
     // getter - returns starting edge
-    public Direction getStartingEdge() {
-        return this.startingEdge;
+    public Direction getStartingEdge() throws NullPointerException {
+        if (this.startingEdge != null)
+            return this.startingEdge;
+        else
+            throw new NullPointerException("Starting Edge has not been initialized yet");
     }
 
+    public MapCoordinate getDronePosition() {
+        return this.droneCord;
+    }
 }

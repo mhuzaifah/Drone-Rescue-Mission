@@ -14,12 +14,10 @@ public abstract class Response {
     private ResultType type;
 
     Response(JSONObject responseInfo, Operation prevOperation) {
-        logger.info("CREATING RESPONSE OBJECT");
         this.cost = responseInfo.getInt("cost");
         this.status = responseInfo.getString("status");
         this.extras = responseInfo.getJSONObject("extras");
         setType(prevOperation);
-        logger.info("CREATED RESPONSE OBJECT");
     }
 
     private void setType(Operation prevOperation) {

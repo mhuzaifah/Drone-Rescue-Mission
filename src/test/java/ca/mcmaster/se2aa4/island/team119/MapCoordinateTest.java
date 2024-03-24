@@ -11,7 +11,7 @@ public class MapCoordinateTest {
     private MapCoordinate mapCoordinate;
     @BeforeEach
     public void setUp() {
-        mapCoordinate = new MapCoordinate(15, 15);
+        this.mapCoordinate = new MapCoordinate(15, 15);
     }
 
     @Test

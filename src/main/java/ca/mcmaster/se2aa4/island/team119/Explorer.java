@@ -12,27 +12,20 @@ import org.json.JSONTokener;
 public class Explorer implements IExplorerRaid {
 
     private final Logger logger = LogManager.getLogger();
-    private Drone drone;
-    private Map map;
-    private DecisionHandler decisionHandler;
+    private MissionCoordinator missionCoordinator;
     private InfoTranslator translator;
-
     @Override
     public void initialize(String s) {
         logger.info("** Initializing the Exploration Command Center");
         JSONObject initInfo = new JSONObject(new JSONTokener(new StringReader(s)));
         translator = new InfoTranslator();
         logger.info("** Initialization info:\n {}",initInfo.toString(2));
-        map = new Map();
-        drone = new Drone(initInfo.getString("heading"), initInfo.getInt("budget"));
-        decisionHandler = new DecisionHandler(drone, map);
-        logger.info("The drone is facing {}", drone.getHeading());
-        logger.info("Battery level is {}", drone.getBattery());
+        missionCoordinator = new MissionCoordinator(new Drone(initInfo.getString("heading"), initInfo.getInt("budget")), new Map());
     }
 
     @Override
     public String takeDecision() {
-        JSONObject decision = decisionHandler.makeDecision();
+        JSONObject decision = missionCoordinator.makeDecision();
         logger.info("** Decision: {}", decision.toString());
         return decision.toString();
     }
@@ -41,16 +34,14 @@ public class Explorer implements IExplorerRaid {
     public void acknowledgeResults(String s) {
         JSONObject responseInfo = new JSONObject(new JSONTokener(new StringReader(s)));
         logger.info("** Response received:\n"+ responseInfo.toString(2));
-        Response response = translator.createResponse(responseInfo, decisionHandler.getPrevOperation());
-        map.update(response, drone.getHeading());
-        drone.update(response);
-        logger.info("The battery of the drone is {}", drone.getBattery());
-        logger.info("Additional information received: {}", response.getExtras());
+        Response response = translator.createResponse(responseInfo, missionCoordinator.getPrevOperation());
+        missionCoordinator.updateMap(response);
+        missionCoordinator.updateDrone(response);
     }
 
     @Override
     public String deliverFinalReport() {
-        FinalReport finalReport = new FinalReport(map);
+        FinalReport finalReport = new FinalReport(missionCoordinator.getMap());
         return finalReport.getReport();
     }
 

@@ -6,6 +6,8 @@
 
 package ca.mcmaster.se2aa4.island.team119;
 
+import org.apache.logging.log4j.LogManager;
+
 public class FinalReport {
 
     Map map;

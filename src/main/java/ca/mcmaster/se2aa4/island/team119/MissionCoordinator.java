@@ -11,7 +11,7 @@ package ca.mcmaster.se2aa4.island.team119;
 import org.json.JSONObject;
 import java.util.HashMap;
 
-public class DecisionHandler {
+public class MissionCoordinator {
 
     private Drone drone; // The drone object responsible for executing actions
     private Map map; // The map object representing the map's features
@@ -23,9 +23,9 @@ public class DecisionHandler {
 
     // Constructs a DecisionHandler object with the drone and map.
     // Initializes the drone's starting edge of the map and sets the initial search state to finding the island.
-        // drone -- The drone object responsible for executing actions.
-        // map -- The map object representing map features and updating responses.
-    DecisionHandler(Drone drone, Map map) {
+    // drone -- The drone object responsible for executing actions.
+    // map -- The map object representing map features and updating responses.
+    MissionCoordinator(Drone drone, Map map) {
         this.drone = drone;
         this.map = map;
         map.setStartingEdge(determineStartingEdge(drone.getHeading()));
@@ -42,14 +42,10 @@ public class DecisionHandler {
     // Updates the current state and returns the decision to be executed.
     // returns the decision to be executed by the drone as a JSONObject.
     public JSONObject makeDecision() {
-
         setState();
-
         decision = currState.handle();
         prevDecision = decision;
-
         return executeDecision();
-
     }
 
     // A private helper method that sets the current state of the drone's search process based on its current state and battery level.
@@ -120,13 +116,23 @@ public class DecisionHandler {
         return this.drone;
     }
 
+    // calls the map update method to update it with the results of the last decision
+    public void updateMap(Response response) {
+        map.update(response, drone.getHeading());
+    }
+
+    // calls the drone update method to update it with the results of the last decision
+    public void updateDrone(Response response) {
+        drone.update(response);
+    }
+
     // a getter method that retrieves the previous decision made by the drone and returns the previous decision.
     public Operation getPrevOperation() {
         return this.prevDecision;
     }
 
     // Determines the edge of the map where the drone starts based on the drone's initial heading.
-        // droneHeading -- The initial direction the drone is facing.
+    // droneHeading -- The initial direction the drone is facing.
     // returns the starting edge of the drone on the map.
     private Direction determineStartingEdge(Direction droneHeading) {
         Direction startingEdge = null;
@@ -148,3 +154,4 @@ public class DecisionHandler {
     }
 
 }
+

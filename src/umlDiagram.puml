@@ -1,0 +1,107 @@
+@startuml
+
+class Explorer {
+    +void initialize(String s)
+    +String takeDecision()
+    +void acknowledgeResults(String s)
+}
+
+class Drone{
+    +JSONObject scan()
+    +JSONObject echoFwd()
+    +JSONObject echoRight()
+    +JSONObject echoLeft()
+    +JSONObject flyFwd()
+    +JSONObject flyRight()
+    +JSONObject flyLeft()
+    +JSONObject stop()
+    +void update(Response r)
+}
+
+class Map{
+    +void update(Response r, Direction dh)
+    +MapTile inFront()
+    +MapTile toLeft()
+    +MapTile toRight()
+    +MapTile getCurrTile()
+    +Integer getDistFront()
+    +Integer getDistRight()
+    +Integer getDistLeft()
+    +POI findClosestCreek()
+}   
+
+class MapTile{}
+
+class MapCoordinate{}
+
+class POI{}
+
+enum Direction{}
+
+class InfoTranslator{}
+
+class MissionCoordinator{}
+
+abstract class Response{}
+
+class EchoResponse{}
+
+class ScanResponse{}
+
+class MovementResponse{}
+
+enum ResultType{}
+
+Interface SearchState{}
+
+enum SearchStateName{}
+
+Interface SearchAlgo{}
+
+class FindIsland{}
+
+class IslandGridSearch{}
+
+class ReturnHome{}
+
+class BatteryManager{}
+
+class Operation{}
+
+enum Action{}
+
+class FinalReport{}
+
+Explorer --> "1" InfoTranslator
+Explorer --> "1" MissionCoordinator
+Explorer --> "1" FinalReport
+
+MissionCoordinator --> "1" "Drone"
+MissionCoordinator --> "1" "Map"
+MissionCoordinator ..> "*" SearchState : <<creates>>
+MissionCoordinator --> "1" BatteryManager
+
+FindIsland ..|> SearchState
+IslandGridSearch ..|> SearchState
+IslandGridSearch ..|> SearchAlgo
+ReturnHome ..|> SearchState
+SearchState --> SearchStateName
+
+Map *-- MapTile
+Map *-- MapCoordinate
+Map *-- POI
+Map --> Direction
+
+Drone --> Direction
+
+Operation --> "1" Action
+
+EchoResponse --|> Response
+ScanResponse --|> Response
+MovementResponse --|> Response
+Response --> ResultType
+
+InfoTranslator ..> Operation : <<uses>>
+InfoTranslator ..> Response : <<creates>>
+
+@enduml

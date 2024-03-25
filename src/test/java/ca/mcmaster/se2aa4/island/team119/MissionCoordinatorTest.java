@@ -1,26 +1,23 @@
 package ca.mcmaster.se2aa4.island.team119;
 import org.json.JSONObject;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.logging.LogManager;
-
 import static org.junit.jupiter.api.Assertions.*;
 
-class DecisionHandlerTest {
+class MissionCoordinatorTest {
 
     private Drone drone;
     private Map map;
-    private DecisionHandler decisionHandler;
+    private MissionCoordinator missionCoordinator;
     private JSONObject decision;
 
     @BeforeEach
     void setUp() {
         drone = new Drone("N", 7000);
         map = new Map();
-        decisionHandler = new DecisionHandler(drone, map);
-        decision = decisionHandler.makeDecision();
+        missionCoordinator = new MissionCoordinator(drone, map);
+        decision = missionCoordinator.makeDecision();
     }
 
     @Test
@@ -30,16 +27,16 @@ class DecisionHandlerTest {
     }
     @Test
     void testMakeDecisionSearchIslandState() {
-        decisionHandler.currState = new IslandGridSearch(decisionHandler);
-        JSONObject decision2 = decisionHandler.makeDecision();
+        missionCoordinator.currState = new IslandGridSearch(missionCoordinator);
+        JSONObject decision2 = missionCoordinator.makeDecision();
         assertEquals("echo", decision2.getString("action"));
         assertEquals((new JSONObject().put("direction", drone.getHeading().toString())).toString(), decision2.getJSONObject("parameters").toString());
     }
 
     @Test
     void testMakeDecisionReturnHomeState() {
-        decisionHandler.currState = new ReturnHome(decisionHandler);
-        JSONObject decision2 = decisionHandler.makeDecision();
+        missionCoordinator.currState = new ReturnHome(missionCoordinator);
+        JSONObject decision2 = missionCoordinator.makeDecision();
         assertEquals("stop", decision2.getString("action"));
     }
 }

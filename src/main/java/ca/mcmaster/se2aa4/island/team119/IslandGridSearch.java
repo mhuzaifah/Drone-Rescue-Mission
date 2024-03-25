@@ -7,7 +7,7 @@ import java.util.Queue;
 public class IslandGridSearch implements SearchState, SearchAlgo {
 
     private final SearchStateName name = SearchStateName.SEARCHISLAND;
-    private DecisionHandler decisionHandler;
+    private MissionCoordinator missionCoordinator;
     private Boolean finished = false;
     private SubState currSubState;
     enum SubState {
@@ -23,8 +23,8 @@ public class IslandGridSearch implements SearchState, SearchAlgo {
     private Operation echoForTurn;
     private Boolean loopingBack = false;
 
-    IslandGridSearch(DecisionHandler decisionHandler) {
-        this.decisionHandler = decisionHandler;
+    IslandGridSearch(MissionCoordinator missionCoordinator) {
+        this.missionCoordinator = missionCoordinator;
         this.currSubState = SubState.EXPLORE;
         this.operations = new ArrayDeque<>();
         setDirectionOfInterest();
@@ -64,8 +64,8 @@ public class IslandGridSearch implements SearchState, SearchAlgo {
     }
 
     private void explore() {
-        if(decisionHandler.getPrevOperation().isEchoFwd()) {
-            if (decisionHandler.getMap().inFront().sameTileType(new MapTile("OCEAN"))) {
+        if(missionCoordinator.getPrevOperation().isEchoFwd()) {
+            if (missionCoordinator.getMap().inFront().sameTileType(new MapTile("OCEAN"))) {
                 getReadyForTurn();
             }
             else {
@@ -75,15 +75,15 @@ public class IslandGridSearch implements SearchState, SearchAlgo {
     }
 
     private void getReadyForTurn() {
-        if(decisionHandler.getMap().getDistFront() > 2)
+        if(missionCoordinator.getMap().getDistFront() > 2)
             flyFwdAndScan(2);
         operations.add(echoForTurn);
         currSubState = SubState.TURN;
     }
 
     private void moveForwardInExploration() {
-        Integer distInFront = decisionHandler.getMap().getDistFront();
-        MapTile tileInFront = decisionHandler.getMap().inFront();
+        Integer distInFront = missionCoordinator.getMap().getDistFront();
+        MapTile tileInFront = missionCoordinator.getMap().inFront();
         LogManager.getLogger().info("TILE IN FRONT {}", tileInFront.tileType.name());
         if(distInFront == 0 && tileInFront.sameTileType(new MapTile("GROUND"))) {
            flyFwdAndScan(1);
@@ -98,7 +98,7 @@ public class IslandGridSearch implements SearchState, SearchAlgo {
     }
 
     private void turn() {
-        Operation prevOperation = decisionHandler.getPrevOperation();
+        Operation prevOperation = missionCoordinator.getPrevOperation();
         if(prevOperation.isEchoRight() || prevOperation.isEchoLeft()) {
             turnAtCorrectTime();
         }
@@ -108,8 +108,8 @@ public class IslandGridSearch implements SearchState, SearchAlgo {
     }
 
     private void turnAtCorrectTime() {
-        Operation prevOperation = decisionHandler.getPrevOperation();
-        Integer distance = prevOperation.isEchoRight() ? decisionHandler.getMap().getDistRight() : decisionHandler.getMap().getDistLeft();
+        Operation prevOperation = missionCoordinator.getPrevOperation();
+        Integer distance = prevOperation.isEchoRight() ? missionCoordinator.getMap().getDistRight() : missionCoordinator.getMap().getDistLeft();
         if (distance == 0) {
             operations.add(new Operation(Action.FLYFORWARD));
             operations.add(echoForTurn);
@@ -121,7 +121,7 @@ public class IslandGridSearch implements SearchState, SearchAlgo {
     }
 
     private void determinePostTurnAction() {
-        if(decisionHandler.getMap().inFront().sameTileType(new MapTile("OCEAN"))) {
+        if(missionCoordinator.getMap().inFront().sameTileType(new MapTile("OCEAN"))) {
             if(!loopingBack) {
                 currSubState = SubState.LOOPBACKSETUP;
                 loopingBack = true;
@@ -139,8 +139,8 @@ public class IslandGridSearch implements SearchState, SearchAlgo {
     }
 
     private void getBackToIsland() {
-        if(decisionHandler.getPrevOperation().isEchoFwd()) {
-            Integer distInFront = decisionHandler.getMap().getDistFront();
+        if(missionCoordinator.getPrevOperation().isEchoFwd()) {
+            Integer distInFront = missionCoordinator.getMap().getDistFront();
             for (int i = 0; i < distInFront - 1; i++) {
                 operations.add(new Operation(Action.FLYFORWARD));
             }
@@ -151,8 +151,8 @@ public class IslandGridSearch implements SearchState, SearchAlgo {
     }
 
     private void loopBackSetup() {
-        if (decisionHandler.getPrevOperation().isEcho()) {
-            Integer dist = decisionHandler.getPrevOperation().isEchoLeft() ? decisionHandler.getMap().getDistLeft() : decisionHandler.getMap().getDistRight();
+        if (missionCoordinator.getPrevOperation().isEcho()) {
+            Integer dist = missionCoordinator.getPrevOperation().isEchoLeft() ? missionCoordinator.getMap().getDistLeft() : missionCoordinator.getMap().getDistRight();
 
             if (dist == 0) {
                 moveSideways(1);
@@ -175,8 +175,8 @@ public class IslandGridSearch implements SearchState, SearchAlgo {
     }
 
     private void loopBackEvenCase() {
-        if (decisionHandler.getPrevOperation().isEchoFwd()) {
-            MapTile tileInFront = decisionHandler.getMap().inFront();
+        if (missionCoordinator.getPrevOperation().isEchoFwd()) {
+            MapTile tileInFront = missionCoordinator.getMap().inFront();
 
             if (!tileInFront.sameTileType(new MapTile("GROUND")))
                 moveSideways(2);
@@ -188,8 +188,8 @@ public class IslandGridSearch implements SearchState, SearchAlgo {
     }
 
     private void setDirectionOfInterest() {
-        Direction droneHeading = decisionHandler.getDrone().getHeading();
-        Direction startingEdge = decisionHandler.getMap().getStartingEdge();
+        Direction droneHeading = missionCoordinator.getDrone().getHeading();
+        Direction startingEdge = missionCoordinator.getMap().getStartingEdge();
 
         if(startingEdge.isNorth()) {
             if(droneHeading.isEast()) {

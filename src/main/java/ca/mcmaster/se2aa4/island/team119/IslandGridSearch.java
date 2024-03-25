@@ -1,6 +1,5 @@
 package ca.mcmaster.se2aa4.island.team119;
 
-import org.apache.logging.log4j.LogManager;
 import java.util.ArrayDeque;
 import java.util.Queue;
 
@@ -10,6 +9,7 @@ public class IslandGridSearch implements SearchState, SearchAlgo {
     private MissionCoordinator missionCoordinator;
     private Boolean finished = false;
     private SubState currSubState;
+
     enum SubState {
         EXPLORE,
         TURN,
@@ -84,7 +84,6 @@ public class IslandGridSearch implements SearchState, SearchAlgo {
     private void moveForwardInExploration() {
         Integer distInFront = missionCoordinator.getMap().getDistFront();
         MapTile tileInFront = missionCoordinator.getMap().inFront();
-        LogManager.getLogger().info("TILE IN FRONT {}", tileInFront.tileType.name());
         if(distInFront == 0 && tileInFront.sameTileType(new MapTile("GROUND"))) {
            flyFwdAndScan(1);
         }

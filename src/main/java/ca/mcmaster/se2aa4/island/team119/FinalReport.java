@@ -10,7 +10,7 @@ import org.apache.logging.log4j.LogManager;
 
 public class FinalReport {
 
-    Map map;
+    private Map map;
 
     FinalReport(Map map) {
         this.map = map;

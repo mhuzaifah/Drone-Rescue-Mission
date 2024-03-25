@@ -38,7 +38,7 @@ public class IslandGridSearch implements SearchState, SearchAlgo {
     }
 
     @Override
-    public Operation search () {
+    public Operation search() {
         setDirectionOfInterest();
         switch (currSubState) {
             case EXPLORE -> {

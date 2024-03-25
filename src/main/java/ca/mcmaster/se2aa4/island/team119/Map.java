@@ -150,10 +150,6 @@ public class Map {
         return this.distLeft != null ? this.distLeft : -1;
     }
 
-    public MapTile getCurrTile() {
-        return map.get(droneCord);
-    }
-
     // this method calculates the closest creek to the emergency site
     // returns the closest creek as a POI
     // throws IndexOutOfBoundsException if no creeks have been found

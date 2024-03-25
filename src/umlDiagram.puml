@@ -4,6 +4,7 @@ class Explorer {
     +void initialize(String s)
     +String takeDecision()
     +void acknowledgeResults(String s)
+    +String deliverFinalReport()
 }
 
 class Drone{
@@ -20,57 +21,122 @@ class Drone{
 
 class Map{
     +void update(Response r, Direction dh)
-    +MapTile inFront()
-    +MapTile toLeft()
-    +MapTile toRight()
-    +MapTile getCurrTile()
-    +Integer getDistFront()
-    +Integer getDistRight()
-    +Integer getDistLeft()
     +POI findClosestCreek()
-}   
+}
 
-class MapTile{}
+class MapTile{
+    -Type tileType
+    +Boolean sameTileType(MapTile t)
+}
 
-class MapCoordinate{}
+class MapCoordinate{
+    +String toString()
+    +void translateFwd(Direction dh)
+    +void translateLeft(Direction dh)
+    +void translateRight(Direction dh)
+    +double calculateDistance (MapCoordinate c1, MapCoordinate c2)
+}
 
 class POI{}
 
-enum Direction{}
+enum Direction{
+    +String toString()
+    +Direction toDirection(String d)
+    +Direction lookRight()
+    +Direction lookLeft()
+    +Boolean isNorth()
+    +Boolean isSouth()
+    +Boolean isEast()
+    +Boolean isWest()
+}
 
-class InfoTranslator{}
+class InfoTranslator{
+    +Response createResponse(JSONObject rInfo, Operation prevOp)
+}
 
-class MissionCoordinator{}
+class MissionCoordinator{
+    -SearchState currState;
+    +JSONObject makeDecision()
+    +void updateMap(Response r)
+    +void updateDrone(Response r)
+}
 
 abstract class Response{}
 
 class EchoResponse{}
 
-class ScanResponse{}
+class ScanResponse{
+    +ArrayList<String> parseBiomes(JSONArray b)
+    +ArrayList<String> parseCreeks(JSONArray c)
+    +String parseSites(JSONArray s)
+}
 
 class MovementResponse{}
 
-enum ResultType{}
+enum ResultType{
+    +String toString()
+}
 
-Interface SearchState{}
+Interface SearchState{
+    +Operation handle()
+    +Boolean isFinished()
+    +SearchStateName getName()
+}
 
-enum SearchStateName{}
+enum SearchStateName{
+    +String toString()
+}
 
-Interface SearchAlgo{}
+Interface SearchAlgo{
+    +Operation search()
+}
 
-class FindIsland{}
+class FindIsland{
+    +Operation handle()
+    +void transitionLogic()
+    +Boolean isFinished()
+    +SearchStateName getName()
+}
 
-class IslandGridSearch{}
+class IslandGridSearch{
+    +Operation handle()
+    +Operation search()
+    +Boolean isFinished()
+    +SearchStateName getName()
+}
 
-class ReturnHome{}
+class ReturnHome{
+    -MissionCoordinator missionCoordinator
+    +Operation handle()
+    +Boolean isFinished()
+    +SearchStateName getName()
+}
 
-class BatteryManager{}
+class BatteryManager{
+    +public int calculateThreshold(MapCoordinate c)
+    +public Boolean exceededThreshold(Integer b, MapCoordinate c)
+}
 
-class Operation{}
+class Operation{
+    +boolean isEchoLeft()
+    +boolean isEchoRight()
+    +boolean isEchoFwd()
+    +boolean isEcho()
+    +boolean isFly()
+    +boolean isScan()
+    +boolean isFlyFwd()
+    +boolean isFlyLeft()
+    +boolean isFlyRight()
+}
 
-enum Action{}
+enum Action{
+    +String toString()
+    +Action oppositeAction()
+}
 
-class FinalReport{}
+class FinalReport{
+    +String getReport()
+}
 
 Explorer --> "1" InfoTranslator
 Explorer --> "1" MissionCoordinator

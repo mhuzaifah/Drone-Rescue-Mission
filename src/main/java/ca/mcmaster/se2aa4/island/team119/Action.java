@@ -16,8 +16,8 @@ public enum Action {
     FLYLEFT("heading", "left"),
     STOP("stop");
 
-    String abreviation;
-    String direction;
+    private String abreviation;
+    private String direction;
 
     Action(String abv, String direc) {
         this.abreviation = abv;

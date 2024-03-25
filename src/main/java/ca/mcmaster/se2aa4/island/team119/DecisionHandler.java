@@ -9,7 +9,6 @@
 package ca.mcmaster.se2aa4.island.team119;
 
 import org.json.JSONObject;
-
 import java.util.HashMap;
 
 public class DecisionHandler {

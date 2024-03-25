@@ -65,9 +65,5 @@ public class MapTile  {
         return Type.LAND;
     }
 
-    public Type getTileType() {
-        return this.tileType;
-    }
-
 }
 

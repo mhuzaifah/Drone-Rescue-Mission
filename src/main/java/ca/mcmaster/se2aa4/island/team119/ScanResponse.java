@@ -10,7 +10,6 @@ package ca.mcmaster.se2aa4.island.team119;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
-
 import java.util.ArrayList;
 
 public class ScanResponse extends Response  {

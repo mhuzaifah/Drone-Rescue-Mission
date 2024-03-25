@@ -6,8 +6,6 @@
 
 package ca.mcmaster.se2aa4.island.team119;
 
-import org.apache.logging.log4j.LogManager;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -189,12 +187,12 @@ public class Map {
             throw new NullPointerException("Starting Edge has not been initialized yet");
     }
 
+    // getters - return drone coordinate, creeks, and emergency site
     public MapCoordinate getDronePosition() {
         return this.droneCord;
     }
 
     public ArrayList<POI> getCreeks() {
-        ArrayList<POI> creeks = this.creeks;
         return this.creeks;
     }
 

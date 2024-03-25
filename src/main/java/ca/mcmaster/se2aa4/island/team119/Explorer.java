@@ -19,8 +19,8 @@ public class Explorer implements IExplorerRaid {
         logger.info("** Initializing the Exploration Command Center");
         JSONObject initInfo = new JSONObject(new JSONTokener(new StringReader(s)));
         translator = new InfoTranslator();
+        missionCoordinator = new MissionCoordinator(initInfo);
         logger.info("** Initialization info:\n {}",initInfo.toString(2));
-        missionCoordinator = new MissionCoordinator(new Drone(initInfo.getString("heading"), initInfo.getInt("budget")), new Map());
     }
 
     @Override

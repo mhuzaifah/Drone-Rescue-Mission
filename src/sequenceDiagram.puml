@@ -1,0 +1,93 @@
+@startuml
+participant Explorer
+participant MissionCoordinator
+participant InfoTranslator
+participant Drone
+participant Map
+participant SearchState
+participant Response
+
+Explorer -> Explorer: initialize(s)
+activate Explorer
+Explorer -> InfoTranslator: this()
+activate InfoTranslator
+InfoTranslator -> Explorer
+deactivate InfoTranslator
+
+Explorer -> MissionCoordinator: this(initInfo)
+activate MissionCoordinator
+MissionCoordinator -> Drone: this(heading, battery)
+activate Drone
+Drone -> MissionCoordinator
+deactivate Drone
+MissionCoordinator -> Map: this()
+activate Map
+Map -> MissionCoordinator
+deactivate Map
+MissionCoordinator -> Explorer
+deactivate MissionCoordinator
+Explorer -> Explorer
+deactivate Explorer
+
+Explorer -> Explorer: takeDecision()
+activate Explorer
+Explorer -> MissionCoordinator: makeDecision()
+activate MissionCoordinator
+MissionCoordinator -> MissionCoordinator: setState()
+MissionCoordinator -> SearchState: handle()
+activate SearchState
+SearchState -> MissionCoordinator: operation
+deactivate SearchState
+MissionCoordinator -> Drone: executeDecision()
+activate Drone
+Drone -> MissionCoordinator: JSONObject 
+deactivate Drone
+MissionCoordinator -> Explorer: JSONObject
+deactivate MissionCoordinator
+Explorer -> Explorer
+deactivate Explorer
+
+Explorer -> Explorer: acknowledgeResults(s)
+activate Explorer
+Explorer -> InfoTranslator: createResponse(responseInfo, prevDecision)
+activate InfoTranslator
+InfoTranslator -> Response: this(responseInfo, prevDecision)
+activate Response
+Response -> InfoTranslator
+deactivate Response
+InfoTranslator -> Explorer: response
+deactivate InfoTranslator
+Explorer -> MissionCoordinator: updateMap(response)
+activate MissionCoordinator
+MissionCoordinator -> Map: update(response:Response, droneHeading)
+activate Map
+Map -> Map: update(response:Subclass of Response)
+Map -> MissionCoordinator
+deactivate Map
+MissionCoordinator -> Explorer
+deactivate MissionCoordinator
+Explorer -> MissionCoordinator: updateDrone(response)
+activate MissionCoordinator
+MissionCoordinator -> Drone: update(response)
+activate Drone
+Drone -> MissionCoordinator
+deactivate Drone
+MissionCoordinator -> Explorer
+deactivate MissionCoordinator
+Explorer -> Explorer
+deactivate Explorer
+
+Explorer -> Explorer: deliverFinalReport()
+activate Explorer
+Explorer -> FinalReport: this(map)
+activate FinalReport
+FinalReport -> Explorer
+deactivate FinalReport
+Explorer -> FinalReport: getFinalReport()
+activate FinalReport
+FinalReport -> Explorer: report
+deactivate FinalReport
+Explorer -> Explorer
+deactivate Explorer
+
+@enduml

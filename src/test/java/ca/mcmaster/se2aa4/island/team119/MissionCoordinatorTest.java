@@ -9,14 +9,18 @@ class MissionCoordinatorTest {
 
     private Drone drone;
     private Map map;
+    private JSONObject initInfo;
     private MissionCoordinator missionCoordinator;
     private JSONObject decision;
 
     @BeforeEach
     void setUp() {
-        drone = new Drone("N", 7000);
-        map = new Map();
-        missionCoordinator = new MissionCoordinator(drone, map);
+        initInfo = new JSONObject();
+        initInfo.put("heading", "N");
+        initInfo.put("budget", 7000);
+        missionCoordinator = new MissionCoordinator(initInfo);
+        drone = missionCoordinator.getDrone();
+        map = missionCoordinator.getMap();
         decision = missionCoordinator.makeDecision();
     }
 

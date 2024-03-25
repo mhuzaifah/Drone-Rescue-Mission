@@ -25,9 +25,9 @@ public class MissionCoordinator {
     // Initializes the drone's starting edge of the map and sets the initial search state to finding the island.
     // drone -- The drone object responsible for executing actions.
     // map -- The map object representing map features and updating responses.
-    MissionCoordinator(Drone drone, Map map) {
-        this.drone = drone;
-        this.map = map;
+    MissionCoordinator(JSONObject initInfo) {
+        this.drone = new Drone(initInfo.getString("heading"), initInfo.getInt("budget"));
+        this.map = new Map();
         map.setStartingEdge(determineStartingEdge(drone.getHeading()));
         this.batteryManager = new BatteryManager();
         this.prevDecision = null;
